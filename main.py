@@ -34,7 +34,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
@@ -78,6 +78,195 @@ async def general_error_handler(request: Request, exc: Exception):
 # ══════════════════════════════════════════════════════════════════════════════
 # HEALTH & INFO
 # ══════════════════════════════════════════════════════════════════════════════
+
+
+# ── Web input form HTML ──────────────────────────────────────────────────────
+_INPUT_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>MDUMENI — Soil Input</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F4F7F5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+  .card{background:white;border-radius:20px;padding:28px 24px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.10)}
+  .logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+  .logo-icon{width:40px;height:40px;background:#1A5C2A;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+  .logo-text{font-size:22px;font-weight:800;color:#1A5C2A;letter-spacing:-0.5px}
+  .logo-text span{color:#EF9F27}
+  h1{font-size:18px;font-weight:700;color:#0F1A12;margin-bottom:4px}
+  .sub{font-size:13px;color:#607868;margin-bottom:24px;line-height:1.4}
+  .field{margin-bottom:18px}
+  label{display:block;font-size:12px;font-weight:700;color:#607868;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:7px}
+  .input-row{display:flex;align-items:center;gap:8px}
+  .adj{width:40px;height:44px;background:#F4F7F5;border:1.5px solid #E0E9E2;border-radius:9px;font-size:22px;color:#3B5040;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+  .adj:active{background:#E0E9E2}
+  input[type=number]{flex:1;height:44px;border:1.5px solid #E0E9E2;border-radius:9px;font-size:22px;font-weight:700;color:#0F1A12;text-align:center;background:#F4F7F5;outline:none;-moz-appearance:textfield}
+  input[type=number]:focus{border-color:#1A5C2A;background:white}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+  .status{display:flex;align-items:center;gap:6px;margin-top:7px;min-height:18px}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .status-text{font-size:12px;font-weight:500}
+  .scale{height:4px;background:#E0E9E2;border-radius:2px;margin-top:6px;overflow:hidden}
+  .scale-fill{height:100%;border-radius:2px;transition:width .3s,background .3s}
+  .btn{width:100%;height:52px;background:#1A5C2A;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:background .2s;-webkit-tap-highlight-color:transparent}
+  .btn:active{background:#237533}
+  .btn:disabled{background:#B8C9BC;cursor:not-allowed}
+  .toast{display:none;margin-top:14px;padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;text-align:center}
+  .toast.success{background:#E8F5EC;color:#1A5C2A;display:block}
+  .toast.error{background:#FDEAEA;color:#DC3545;display:block}
+  .divider{height:1px;background:#E0E9E2;margin:20px 0}
+  .footer{font-size:12px;color:#8A9F90;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🌱</div>
+    <div class="logo-text">MDU<span>MENI</span></div>
+  </div>
+  <h1>Soil readings input</h1>
+  <p class="sub">Enter your soil readings below. The mobile app picks them up automatically.</p>
+
+  <div class="field">
+    <label>Soil pH</label>
+    <div class="input-row">
+      <button class="adj" onclick="adj('ph',-0.1)">−</button>
+      <input type="number" id="ph" value="6.1" min="0" max="14" step="0.1" oninput="update()">
+      <button class="adj" onclick="adj('ph',0.1)">+</button>
+    </div>
+    <div class="scale"><div class="scale-fill" id="ph-scale"></div></div>
+    <div class="status"><div class="dot" id="ph-dot"></div><span class="status-text" id="ph-status"></span></div>
+  </div>
+
+  <div class="field">
+    <label>Soil moisture %</label>
+    <div class="input-row">
+      <button class="adj" onclick="adj('mo',-1)">−</button>
+      <input type="number" id="mo" value="62" min="0" max="100" step="1" oninput="update()">
+      <button class="adj" onclick="adj('mo',1)">+</button>
+    </div>
+    <div class="scale"><div class="scale-fill" id="mo-scale"></div></div>
+    <div class="status"><div class="dot" id="mo-dot"></div><span class="status-text" id="mo-status"></span></div>
+  </div>
+
+  <div class="field">
+    <label>Soil temperature °C</label>
+    <div class="input-row">
+      <button class="adj" onclick="adj('tm',-0.5)">−</button>
+      <input type="number" id="tm" value="24" min="0" max="60" step="0.5" oninput="update()">
+      <button class="adj" onclick="adj('tm',0.5)">+</button>
+    </div>
+    <div class="scale"><div class="scale-fill" id="tm-scale"></div></div>
+    <div class="status"><div class="dot" id="tm-dot"></div><span class="status-text" id="tm-status"></span></div>
+  </div>
+
+  <button class="btn" id="submit-btn" onclick="submit()">Update readings →</button>
+  <div class="toast" id="toast"></div>
+
+  <div class="divider"></div>
+  <div class="footer">MDUMENI · Intelli-Farming · University of Zimbabwe</div>
+</div>
+
+<script>
+const PH_RANGES=[{max:5.0,label:'Very acidic — lime urgently needed',color:'#DC3545'},{max:5.5,label:'Acidic — lime recommended',color:'#EF9F27'},{max:6.5,label:'Ideal for most crops',color:'#1A5C2A'},{max:7.5,label:'Neutral — good',color:'#237533'},{max:14,label:'Alkaline — sulphur may help',color:'#EF9F27'}];
+const MO_RANGES=[{max:30,label:'Too dry — irrigate now',color:'#DC3545'},{max:40,label:'Low — monitor closely',color:'#EF9F27'},{max:80,label:'Good moisture',color:'#1A5C2A'},{max:100,label:'Waterlogged — improve drainage',color:'#EF9F27'}];
+const TM_RANGES=[{max:15,label:'Cold — limits germination',color:'#2563EB'},{max:18,label:'Cool — some crops only',color:'#0ea5e9'},{max:30,label:'Ideal for most crops',color:'#1A5C2A'},{max:35,label:'Warm — watch for drought stress',color:'#EF9F27'},{max:60,label:'Very hot — crop stress',color:'#DC3545'}];
+
+function getRange(val,ranges){return ranges.find(r=>val<r.max)||ranges[ranges.length-1]}
+
+function setStatus(id,val,ranges,min,max){
+  const r=getRange(val,ranges);
+  document.getElementById(id+'-dot').style.background=r.color;
+  document.getElementById(id+'-status').textContent=r.label;
+  document.getElementById(id+'-status').style.color=r.color;
+  const pct=((val-min)/(max-min)*100).toFixed(1);
+  document.getElementById(id+'-scale').style.width=pct+'%';
+  document.getElementById(id+'-scale').style.background=r.color;
+}
+
+function update(){
+  const ph=parseFloat(document.getElementById('ph').value);
+  const mo=parseFloat(document.getElementById('mo').value);
+  const tm=parseFloat(document.getElementById('tm').value);
+  if(!isNaN(ph)&&ph>=0&&ph<=14) setStatus('ph',ph,PH_RANGES,0,14);
+  if(!isNaN(mo)&&mo>=0&&mo<=100) setStatus('mo',mo,MO_RANGES,0,100);
+  if(!isNaN(tm)&&tm>=0&&tm<=60) setStatus('tm',tm,TM_RANGES,0,60);
+}
+
+function adj(id,delta){
+  const el=document.getElementById(id);
+  const val=parseFloat(el.value)||0;
+  const step=Math.abs(delta);
+  el.value=(Math.round((val+delta)/step)*step).toFixed(delta%1===0?0:1);
+  update();
+}
+
+async function submit(){
+  const ph=parseFloat(document.getElementById('ph').value);
+  const mo=parseInt(document.getElementById('mo').value);
+  const tm=parseFloat(document.getElementById('tm').value);
+  if(isNaN(ph)||isNaN(mo)||isNaN(tm)){showToast('Enter all three readings','error');return;}
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Sending...';
+  try{
+    const res=await fetch('/sensor/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({soil_ph:ph,moisture_pct:mo,temp_c:tm})});
+    if(res.ok){
+      showToast('✅ Readings saved — app will update on next refresh','success');
+    } else {
+      showToast('Server error — try again','error');
+    }
+  }catch(e){
+    showToast('Could not reach server','error');
+  }
+  btn.disabled=false;btn.textContent='Update readings →';
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;
+  setTimeout(()=>{t.className='toast'},4000);
+}
+
+update();
+</script>
+</body>
+</html>"""
+
+# ── Web sensor input form ─────────────────────────────────────────────────────
+
+class SensorInput(BaseModel):
+    soil_ph:      float = Field(..., ge=0.0, le=14.0)
+    moisture_pct: int   = Field(..., ge=0,   le=100)
+    temp_c:       float = Field(..., ge=0.0, le=60.0)
+
+@app.post("/sensor/reading", tags=["Sensor"])
+def submit_sensor_reading(data: SensorInput):
+    """Accept a manual sensor reading from the web input form."""
+    global _latest_reading
+    _latest_reading = {
+        "device_id":    "WEB-INPUT",
+        "soil_ph":       data.soil_ph,
+        "moisture_pct":  data.moisture_pct,
+        "temp_c":        data.temp_c,
+        "battery_pct":   100,
+        "recorded_at":   datetime.utcnow().isoformat() + "Z",
+        "source":        "web-form",
+    }
+    return {"status": "ok", "reading": _latest_reading}
+
+
+@app.get("/sensor/latest", tags=["Sensor"])
+def get_latest_reading():
+    """Return the most recent sensor reading — polled by the mobile app."""
+    return _latest_reading
+
+
+@app.get("/input", response_class=HTMLResponse, tags=["Sensor"])
+def sensor_input_form():
+    """Web form for manually entering soil readings during testing."""
+    return HTMLResponse(content=_INPUT_HTML, status_code=200)
 
 @app.get("/health", tags=["System"])
 def health():
