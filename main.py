@@ -889,6 +889,57 @@ def admin_stats():
     except Exception as e:
         return {"error": str(e)}
 
+
+# ── Yield recording & Season history ──────────────────────────────────────────
+
+class YieldRecordRequest(BaseModel):
+    farmer_id:          str
+    crop_id:            str
+    crop_name:          str
+    planting_date:      str          # ISO date string
+    harvest_date:       str          # ISO date string
+    farm_size_ha:       float
+    budget_level:       str = "low"
+    predicted_yield_kg: float = 0
+    actual_yield_kg:    float
+    total_cost_usd:     float = 0
+    gross_revenue_usd:  float = 0
+    net_profit_usd:     float = 0
+    notes:              str = ""
+
+@app.post("/farmer/yield", tags=["Season History"])
+def record_yield(req: YieldRecordRequest):
+    """Record actual harvest yield — saved to season_history for research analysis."""
+    db = get_db()
+    result = db.table("season_history").insert({
+        "farmer_id":          req.farmer_id,
+        "crop_id":            req.crop_id,
+        "crop_name":          req.crop_name,
+        "planting_date":      req.planting_date,
+        "harvest_date":       req.harvest_date,
+        "farm_size_ha":       req.farm_size_ha,
+        "budget_level":       req.budget_level,
+        "predicted_yield_kg": req.predicted_yield_kg,
+        "actual_yield_kg":    req.actual_yield_kg,
+        "total_cost_usd":     req.total_cost_usd,
+        "gross_revenue_usd":  req.gross_revenue_usd,
+        "net_profit_usd":     req.net_profit_usd,
+        "notes":              req.notes,
+    }).execute()
+    return {"status": "recorded", "id": result.data[0]["id"]}
+
+@app.get("/farmer/history", tags=["Season History"])
+def get_season_history(authorization: str = Header(None)):
+    """Get all completed seasons for this farmer."""
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+    db = get_db()
+    result = db.table("season_history") \
+        .select("*").eq("farmer_id", farmer_id) \
+        .order("planting_date", desc=True).execute()
+    return result.data
+
 @app.get("/health", tags=["System"])
 def health():
     """Check API health and engine status."""
