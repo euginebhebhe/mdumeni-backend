@@ -549,7 +549,7 @@ def set_farmer_crop(
 
 
 @app.post("/farmer/reading", tags=["Farmer Data"])
-def save_farmer_reading(req: SyncRequest):
+def save_farmer_reading(req: FarmerSyncRequest):
     """Save a sensor reading linked to a specific farmer."""
     db = get_db()
     result = db.table("sensor_readings").insert({
