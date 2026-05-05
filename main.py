@@ -268,6 +268,250 @@ def sensor_input_form():
     """Web form for manually entering soil readings during testing."""
     return HTMLResponse(content=_INPUT_HTML, status_code=200)
 
+
+# ── AI Chat endpoint ─────────────────────────────────────────────────────────
+
+class ChatRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=2000)
+    context:  dict = Field(default_factory=dict)
+
+SYSTEM_PROMPT = """You are MDUMENI, a knowledgeable and friendly AI agronomist specialising in Zimbabwean agriculture.
+
+You work with smallholder farmers across Zimbabwe's 5 agro-ecological regions. You know:
+- All 30 major Zimbabwean crops: maize, sugar beans, groundnuts, sorghum, pearl millet, cotton, tobacco, soya, sunflower, sesame, cassava, sweet potato, cowpeas, and more
+- Zimbabwe's AGRITEX crop management recommendations
+- Local product names: AN 34.5%, Compound D, Compound S, Lafarge lime, Bt DiPel, Proclaim, Karate
+- Local market prices, GMB procedures, Cottco contracts, Seed Co varieties (ZM521, SC403, SC627)
+- Regional rainfall patterns: Region I (>1000mm), II (750-1000mm), III (650-800mm), IV (450-650mm), V (<450mm)
+- Soil challenges: acidic granitic soils in Mashonaland, alkaline soils in parts of Matabeleland
+- Climate challenges: El Niño droughts, mid-season dry spells, late onset of rains
+
+Always:
+- Use the farmer's actual farm data (pH, moisture, crop, region, farm size, budget) in your answer
+- Give specific numbers: kg/ha rates, costs in USD, timing in days
+- Recommend products available in Zimbabwe
+- Keep answers practical and actionable — farmers implement advice the same day
+- Be encouraging and respectful
+- For critical issues (very low pH, severe pest outbreak), be direct about urgency
+
+Never:
+- Give generic answers that ignore the farmer's actual data
+- Recommend products not available in Zimbabwe
+- Use overly technical language without explanation
+- Give advice that contradicts AGRITEX standards without good reason
+"""
+
+@app.post("/chat", tags=["AI Assistant"])
+async def ai_chat(req: ChatRequest):
+    """AI agronomist chat — powered by Claude. Reads farmer's real data."""
+    import urllib.request
+    import json as json_module
+    import os
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return {"answer": "AI chat is not configured on this server. Please contact the MDUMENI team to enable it.", "source": "error"}
+
+    # Build context message from farmer data
+    ctx = req.context
+    farm_context = f"""Current farmer data:
+- Soil pH: {ctx.get('soil_ph', 'unknown')}
+- Moisture: {ctx.get('moisture_pct', 'unknown')}%
+- Temperature: {ctx.get('temp_c', 'unknown')}°C
+- Active crop: {ctx.get('active_crop', 'none')}
+- Agro-region: Region {ctx.get('agro_region', 'unknown')}
+- Farm size: {ctx.get('farm_size_ha', 'unknown')} ha
+- Budget level: {ctx.get('budget_level', 'unknown')} input
+- Irrigation: {'Available' if ctx.get('has_irrigation') else 'Rain-fed only'}
+- Province: {ctx.get('province', 'Zimbabwe')}
+- Month: {ctx.get('current_month', 'unknown')}
+
+Farmer's question: {req.question}"""
+
+    payload = json_module.dumps({
+        "model": "claude-sonnet-4-20250514",
+        "max_tokens": 600,
+        "system": SYSTEM_PROMPT,
+        "messages": [{"role": "user", "content": farm_context}]
+    }).encode()
+
+    try:
+        request = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01"
+            },
+            method="POST"
+        )
+        with urllib.request.urlopen(request, timeout=25) as response:
+            result = json_module.loads(response.read())
+            answer = result["content"][0]["text"]
+            return {"answer": answer, "source": "claude"}
+    except Exception as e:
+        return {"answer": f"I could not reach the AI service right now. Please try again. ({type(e).__name__})", "source": "error"}
+
+
+
+# ── AI Chat endpoint ──────────────────────────────────────────────────────────
+
+class ChatRequest(BaseModel):
+    question:   str = Field(..., min_length=1, max_length=2000)
+    context:    dict = Field(default_factory=dict)
+
+class ChatResponse(BaseModel):
+    answer: str
+    source: str = "claude-ai"
+
+@app.post("/chat", tags=["AI Chat"], response_model=ChatResponse)
+def ai_chat(req: ChatRequest):
+    """
+    AI agronomist chatbot powered by Claude.
+    Requires ANTHROPIC_API_KEY environment variable to be set on Render.
+    """
+    import os
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="AI chat is not configured. Set ANTHROPIC_API_KEY in Render environment variables."
+        )
+
+    try:
+        import urllib.request, json as _json
+
+        ctx = req.context
+        farm_context = f"""
+FARMER FARM DATA (injected — use this in every answer):
+- Soil pH: {ctx.get('soil_ph', 'unknown')}
+- Soil moisture: {ctx.get('moisture_pct', 'unknown')}%
+- Soil temperature: {ctx.get('temp_c', 'unknown')}°C
+- Active crop: {ctx.get('active_crop', 'not set')}
+- Agro-ecological region: Region {ctx.get('agro_region', 'unknown')} (Zimbabwe)
+- Farm size: {ctx.get('farm_size_ha', 'unknown')} hectares
+- Irrigation: {'available' if ctx.get('has_irrigation') else 'rain-fed only'}
+- Budget level: {ctx.get('budget_level', 'low')} input
+- Month: {ctx.get('current_month', 'unknown')}
+"""
+
+        system_prompt = f"""You are MDUMENI, an expert AI agronomist for Zimbabwean smallholder farmers.
+You have deep knowledge of:
+- All 5 agro-ecological regions of Zimbabwe (Region I Highveld to Region V Lowveld)
+- AGRITEX crop production recommendations
+- 30 major crops grown in Zimbabwe including maize, groundnuts, sugar beans, cotton, tobacco, sorghum, pearl millet, cowpeas, sunflower, wheat and vegetables
+- Zimbabwe-specific pest and disease management including Fall Armyworm, stalk borer, grey leaf spot
+- Zimbabwean input suppliers: Seed Co, Windmill, Agrifoods, Pioneer
+- Affordable farming at low, medium and high input budgets
+- Soil health, pH correction, fertiliser programmes, crop rotation
+
+RULES:
+- Always use the farmer's actual farm data provided below when giving advice
+- Give specific numbers: rates, costs, quantities, timing
+- Recommend products available in Zimbabwe with their local names
+- Keep answers practical and actionable for smallholder farmers
+- Answer in English unless the farmer writes in Shona or Ndebele
+- If asked in Shona or Ndebele, respond in that language
+- Be concise — no longer than 200 words unless a detailed calculation is needed
+
+{farm_context}"""
+
+        payload = _json.dumps({
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 1000,
+            "system": system_prompt,
+            "messages": [{"role": "user", "content": req.question}]
+        }).encode()
+
+        request = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01"
+            },
+            method="POST"
+        )
+
+        with urllib.request.urlopen(request, timeout=30) as response:
+            result = _json.loads(response.read())
+            answer = result["content"][0]["text"]
+            return ChatResponse(answer=answer, source="claude-ai")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI chat error: {str(e)}")
+
+
+
+# ── AI Chat endpoint (Claude API) ─────────────────────────────────────────────
+class ChatRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=1000)
+    context:  dict = Field(default_factory=dict)
+
+@app.post("/chat", tags=["AI Chat"])
+async def ai_chat(req: ChatRequest):
+    """
+    Pass the farmer question to Claude with full farm context injected.
+    Requires ANTHROPIC_API_KEY environment variable on the server.
+    """
+    import os, httpx
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="AI chat not configured — ANTHROPIC_API_KEY missing")
+
+    ctx = req.context
+    system_prompt = f"""You are MDUMENI, an AI agronomist specialised in Zimbabwean smallholder farming.
+You have access to this farmer's live soil sensor data and farm profile:
+
+FARM DATA:
+- Soil pH: {ctx.get('soil_ph', 'unknown')}
+- Soil moisture: {ctx.get('moisture_pct', 'unknown')}%
+- Soil temperature: {ctx.get('temp_c', 'unknown')}°C
+- Active crop: {ctx.get('active_crop', 'not set')}
+- Agro-ecological region: Region {ctx.get('agro_region', 'unknown')}
+- Farm size: {ctx.get('farm_size_ha', 'unknown')} hectares
+- Budget level: {ctx.get('budget_level', 'unknown')} input
+- Current month: {ctx.get('current_month', 'unknown')}
+
+GUIDELINES:
+- Always use the farmer's actual soil data in your answer
+- Be specific — give exact rates, quantities, and costs in USD
+- Reference Zimbabwean products, brands, and suppliers where possible
+- Base recommendations on AGRITEX and CIMMYT guidance for Zimbabwe
+- Keep answers practical and actionable — max 150 words
+- If asked in Shona or Ndebele, respond in that language
+- You know all 5 agro-ecological regions of Zimbabwe and their characteristics
+- You know all major Zimbabwe crops: maize, sugar beans, groundnuts, sorghum, tobacco, cotton, vegetables
+- Tone: knowledgeable, supportive, practical — like a trusted extension officer"""
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 400,
+                    "system": system_prompt,
+                    "messages": [{"role": "user", "content": req.question}],
+                }
+            )
+            data = response.json()
+            if response.status_code != 200:
+                raise HTTPException(status_code=502, detail=f"AI API error: {data.get('error', {}).get('message', 'Unknown')}")
+            return {"response": data["content"][0]["text"], "source": "claude-ai"}
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="AI response timed out — try again")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"AI chat error: {str(e)}")
+
 @app.get("/health", tags=["System"])
 def health():
     """Check API health and engine status."""
