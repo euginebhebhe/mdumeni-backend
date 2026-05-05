@@ -289,6 +289,44 @@ class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
     context:  dict = Field(default_factory=dict)
 
+class RegisterRequest(BaseModel):
+    phone_number: str = Field(..., description="Zimbabwe phone e.g. 0771234567")
+    pin:          str = Field(..., min_length=4, max_length=4)
+    agro_region:  int = Field(..., ge=1, le=5)
+    farm_size_ha: float = Field(..., gt=0)
+    has_irrigation: bool = False
+    budget_level: str = Field("low")
+    province:     str = ""
+    district:     str = ""
+    language:     str = "english"
+
+class LoginRequest(BaseModel):
+    phone_number: str
+    pin:          str = Field(..., min_length=4, max_length=4)
+
+class FarmerSyncRequest(BaseModel):
+    farmer_id:    str
+    soil_ph:      float
+    moisture_pct: int
+    temp_c:       float
+    device_id:    str = "MANUAL"
+    source:       str = "manual"
+
+class YieldRecordRequest(BaseModel):
+    farmer_id:          str
+    crop_id:            str
+    crop_name:          str
+    planting_date:      str          # ISO date string
+    harvest_date:       str          # ISO date string
+    farm_size_ha:       float
+    budget_level:       str = "low"
+    predicted_yield_kg: float = 0
+    actual_yield_kg:    float
+    total_cost_usd:     float = 0
+    gross_revenue_usd:  float = 0
+    net_profit_usd:     float = 0
+    notes:              str = ""
+
 SYSTEM_PROMPT = """You are MDUMENI, a knowledgeable and friendly AI agronomist specialising in Zimbabwean agriculture.
 
 You work with smallholder farmers across Zimbabwe's 5 agro-ecological regions. You know:
@@ -564,28 +602,6 @@ def admin_stats():
 
 # ── Farmer Auth endpoints ──────────────────────────────────────────────────────
 
-class RegisterRequest(BaseModel):
-    phone_number: str = Field(..., description="Zimbabwe phone e.g. 0771234567")
-    pin:          str = Field(..., min_length=4, max_length=4)
-    agro_region:  int = Field(..., ge=1, le=5)
-    farm_size_ha: float = Field(..., gt=0)
-    has_irrigation: bool = False
-    budget_level: str = Field("low")
-    province:     str = ""
-    district:     str = ""
-    language:     str = "english"
-
-class LoginRequest(BaseModel):
-    phone_number: str
-    pin:          str = Field(..., min_length=4, max_length=4)
-
-class FarmerSyncRequest(BaseModel):
-    farmer_id:    str
-    soil_ph:      float
-    moisture_pct: int
-    temp_c:       float
-    device_id:    str = "MANUAL"
-    source:       str = "manual"
 
 def extract_farmer_id(authorization: str = Header(None)):
     if not authorization or not authorization.startswith("Bearer "):
@@ -706,21 +722,6 @@ def admin_stats():
 
 
 # ── Yield recording & Season history ──────────────────────────────────────────
-
-class YieldRecordRequest(BaseModel):
-    farmer_id:          str
-    crop_id:            str
-    crop_name:          str
-    planting_date:      str          # ISO date string
-    harvest_date:       str          # ISO date string
-    farm_size_ha:       float
-    budget_level:       str = "low"
-    predicted_yield_kg: float = 0
-    actual_yield_kg:    float
-    total_cost_usd:     float = 0
-    gross_revenue_usd:  float = 0
-    net_profit_usd:     float = 0
-    notes:              str = ""
 
 @app.post("/farmer/yield", tags=["Season History"])
 def record_yield(req: YieldRecordRequest):
