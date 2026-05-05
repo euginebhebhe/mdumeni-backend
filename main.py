@@ -33,7 +33,10 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
+from typing import Optional
+from db import get_db
+from auth import hash_pin, verify_pin, create_token, verify_token, normalize_phone
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
@@ -242,7 +245,7 @@ class SensorInput(BaseModel):
     temp_c:       float = Field(..., ge=0.0, le=60.0)
 
 @app.post("/sensor/reading", tags=["Sensor"])
-def submit_sensor_reading(data: SensorInput):
+def submit_sensor_reading(data: SensorInput, farmer_id: str = None):
     """Accept a manual sensor reading from the web input form."""
     global _latest_reading
     _latest_reading = {
@@ -254,6 +257,17 @@ def submit_sensor_reading(data: SensorInput):
         "recorded_at":   datetime.utcnow().isoformat() + "Z",
         "source":        "web-form",
     }
+    # Also persist to Supabase if farmer_id provided
+    if farmer_id:
+        try:
+            db = get_db()
+            db.table("sensor_readings").insert({
+                "farmer_id": farmer_id, "device_id": "WEB-INPUT",
+                "soil_ph": data.soil_ph, "moisture_pct": data.moisture_pct,
+                "temp_c": data.temp_c, "source": "web-form",
+            }).execute()
+        except Exception:
+            pass  # Don't fail if DB unavailable
     return {"status": "ok", "reading": _latest_reading}
 
 
@@ -511,6 +525,369 @@ GUIDELINES:
         raise HTTPException(status_code=504, detail="AI response timed out — try again")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"AI chat error: {str(e)}")
+
+
+# ── Farmer Auth endpoints ──────────────────────────────────────────────────────
+
+class RegisterRequest(BaseModel):
+    phone_number: str = Field(..., description="Zimbabwe phone e.g. 0771234567")
+    pin:          str = Field(..., min_length=4, max_length=4, pattern=r"^\d{4}$")
+    agro_region:  int = Field(..., ge=1, le=5)
+    farm_size_ha: float = Field(..., gt=0)
+    has_irrigation: bool = False
+    budget_level: str = Field("low", pattern="^(low|medium|high)$")
+    province:     str = ""
+    district:     str = ""
+    language:     str = "english"
+
+class LoginRequest(BaseModel):
+    phone_number: str
+    pin:          str = Field(..., min_length=4, max_length=4)
+
+class SyncRequest(BaseModel):
+    farmer_id:    str
+    soil_ph:      float
+    moisture_pct: int
+    temp_c:       float
+    device_id:    str = "MANUAL"
+    source:       str = "manual"
+
+def get_farmer_id(authorization: str = Header(None)) -> str | None:
+    """Extract farmer_id from Bearer token. Returns None if missing/invalid."""
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ", 1)[1]
+    payload = verify_token(token)
+    return payload.get("farmer_id") if payload else None
+
+@app.post("/auth/register", tags=["Auth"])
+def register(req: RegisterRequest):
+    """Register a new farmer with phone number and 4-digit PIN."""
+    db  = get_db()
+    phone = normalize_phone(req.phone_number)
+
+    # Check if already registered
+    existing = db.table("farmers").select("id").eq("phone_number", phone).execute()
+    if existing.data:
+        raise HTTPException(status_code=409, detail="Phone number already registered")
+
+    pin_hash = hash_pin(req.pin, phone)
+
+    result = db.table("farmers").insert({
+        "phone_number":   phone,
+        "pin_hash":       pin_hash,
+        "agro_region":    req.agro_region,
+        "farm_size_ha":   req.farm_size_ha,
+        "has_irrigation": req.has_irrigation,
+        "budget_level":   req.budget_level,
+        "province":       req.province,
+        "district":       req.district,
+        "language":       req.language,
+        "is_demo":        False,
+    }).execute()
+
+    farmer = result.data[0]
+    token  = create_token(farmer["id"], phone)
+
+    return {
+        "status":    "registered",
+        "farmer_id": farmer["id"],
+        "token":     token,
+        "farmer":    farmer,
+    }
+
+
+@app.post("/auth/login", tags=["Auth"])
+def login(req: LoginRequest):
+    """Login with phone number and PIN. Returns JWT token."""
+    db    = get_db()
+    phone = normalize_phone(req.phone_number)
+
+    result = db.table("farmers").select("*").eq("phone_number", phone).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Phone number not found. Register first.")
+
+    farmer = result.data[0]
+
+    if not verify_pin(req.pin, phone, farmer["pin_hash"]):
+        raise HTTPException(status_code=401, detail="Incorrect PIN")
+
+    token = create_token(farmer["id"], phone)
+
+    # Load active crop
+    crop_result = db.table("active_crops") \
+        .select("*").eq("farmer_id", farmer["id"]).eq("is_active", True) \
+        .order("created_at", desc=True).limit(1).execute()
+
+    # Load latest sensor reading
+    sensor_result = db.table("sensor_readings") \
+        .select("*").eq("farmer_id", farmer["id"]) \
+        .order("recorded_at", desc=True).limit(1).execute()
+
+    return {
+        "status":    "ok",
+        "farmer_id": farmer["id"],
+        "token":     token,
+        "farmer":    farmer,
+        "active_crop":    crop_result.data[0] if crop_result.data else None,
+        "latest_reading": sensor_result.data[0] if sensor_result.data else None,
+    }
+
+
+@app.get("/auth/me", tags=["Auth"])
+def get_me(authorization: str = Header(None)):
+    """Get current farmer profile from token."""
+    farmer_id = get_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db     = get_db()
+    result = db.table("farmers").select("*").eq("id", farmer_id).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Farmer not found")
+
+    return result.data[0]
+
+
+@app.put("/auth/profile", tags=["Auth"])
+def update_profile(req: RegisterRequest, authorization: str = Header(None)):
+    """Update farmer profile."""
+    farmer_id = get_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db = get_db()
+    db.table("farmers").update({
+        "agro_region":    req.agro_region,
+        "farm_size_ha":   req.farm_size_ha,
+        "has_irrigation": req.has_irrigation,
+        "budget_level":   req.budget_level,
+        "province":       req.province,
+        "district":       req.district,
+        "language":       req.language,
+        "updated_at":     datetime.utcnow().isoformat(),
+    }).eq("id", farmer_id).execute()
+
+    return {"status": "updated"}
+
+
+@app.post("/farmer/crop", tags=["Farmer Data"])
+def set_farmer_crop(
+    crop_id: str, crop_name: str, planting_date: str,
+    authorization: str = Header(None)
+):
+    """Set the farmer's active crop and planting date."""
+    farmer_id = get_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db = get_db()
+    # Deactivate previous crops
+    db.table("active_crops").update({"is_active": False}).eq("farmer_id", farmer_id).execute()
+    # Insert new
+    db.table("active_crops").insert({
+        "farmer_id":    farmer_id,
+        "crop_id":      crop_id,
+        "crop_name":    crop_name,
+        "planting_date": planting_date,
+        "is_active":    True,
+    }).execute()
+    return {"status": "ok"}
+
+
+@app.post("/farmer/reading", tags=["Farmer Data"])
+def save_farmer_reading(req: SyncRequest):
+    """Save a sensor reading linked to a specific farmer."""
+    db = get_db()
+    result = db.table("sensor_readings").insert({
+        "farmer_id":   req.farmer_id,
+        "device_id":   req.device_id,
+        "soil_ph":     req.soil_ph,
+        "moisture_pct": req.moisture_pct,
+        "temp_c":      req.temp_c,
+        "source":      req.source,
+    }).execute()
+    return {"status": "saved", "id": result.data[0]["id"]}
+
+
+@app.get("/farmer/readings", tags=["Farmer Data"])
+def get_farmer_readings(authorization: str = Header(None), limit: int = 30):
+    """Get the farmer's sensor reading history."""
+    farmer_id = get_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db = get_db()
+    result = db.table("sensor_readings") \
+        .select("*").eq("farmer_id", farmer_id) \
+        .order("recorded_at", desc=True).limit(limit).execute()
+    return result.data
+
+
+@app.get("/admin/stats", tags=["Admin"])
+def admin_stats():
+    """Aggregate pilot statistics — for research dashboard."""
+    db = get_db()
+    try:
+        farmers    = db.table("farmers").select("id", count="exact").eq("is_demo", False).execute()
+        readings   = db.table("sensor_readings").select("id", count="exact").execute()
+        crops      = db.table("active_crops").select("crop_name").eq("is_active", True).execute()
+
+        crop_counts: dict = {}
+        for c in (crops.data or []):
+            name = c["crop_name"]
+            crop_counts[name] = crop_counts.get(name, 0) + 1
+
+        return {
+            "total_farmers":  farmers.count,
+            "total_readings": readings.count,
+            "active_crops":   crop_counts,
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ── Farmer Auth endpoints ──────────────────────────────────────────────────────
+
+class RegisterRequest(BaseModel):
+    phone_number: str = Field(..., description="Zimbabwe phone e.g. 0771234567")
+    pin:          str = Field(..., min_length=4, max_length=4)
+    agro_region:  int = Field(..., ge=1, le=5)
+    farm_size_ha: float = Field(..., gt=0)
+    has_irrigation: bool = False
+    budget_level: str = Field("low")
+    province:     str = ""
+    district:     str = ""
+    language:     str = "english"
+
+class LoginRequest(BaseModel):
+    phone_number: str
+    pin:          str = Field(..., min_length=4, max_length=4)
+
+class FarmerSyncRequest(BaseModel):
+    farmer_id:    str
+    soil_ph:      float
+    moisture_pct: int
+    temp_c:       float
+    device_id:    str = "MANUAL"
+    source:       str = "manual"
+
+def extract_farmer_id(authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ", 1)[1]
+    payload = verify_token(token)
+    return payload.get("farmer_id") if payload else None
+
+@app.post("/auth/register", tags=["Auth"])
+def register(req: RegisterRequest):
+    db    = get_db()
+    phone = normalize_phone(req.phone_number)
+    existing = db.table("farmers").select("id").eq("phone_number", phone).execute()
+    if existing.data:
+        raise HTTPException(status_code=409, detail="Phone number already registered")
+    pin_hash = hash_pin(req.pin, phone)
+    result = db.table("farmers").insert({
+        "phone_number": phone, "pin_hash": pin_hash,
+        "agro_region": req.agro_region, "farm_size_ha": req.farm_size_ha,
+        "has_irrigation": req.has_irrigation, "budget_level": req.budget_level,
+        "province": req.province, "district": req.district,
+        "language": req.language, "is_demo": False,
+    }).execute()
+    farmer = result.data[0]
+    return {"status": "registered", "farmer_id": farmer["id"],
+            "token": create_token(farmer["id"], phone), "farmer": farmer}
+
+@app.post("/auth/login", tags=["Auth"])
+def login(req: LoginRequest):
+    db    = get_db()
+    phone = normalize_phone(req.phone_number)
+    result = db.table("farmers").select("*").eq("phone_number", phone).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Phone number not found. Register first.")
+    farmer = result.data[0]
+    if not verify_pin(req.pin, phone, farmer["pin_hash"]):
+        raise HTTPException(status_code=401, detail="Incorrect PIN")
+    token = create_token(farmer["id"], phone)
+    crop_r   = db.table("active_crops").select("*").eq("farmer_id", farmer["id"]).eq("is_active", True).order("created_at", desc=True).limit(1).execute()
+    sensor_r = db.table("sensor_readings").select("*").eq("farmer_id", farmer["id"]).order("recorded_at", desc=True).limit(1).execute()
+    return {"status": "ok", "farmer_id": farmer["id"], "token": token,
+            "farmer": farmer,
+            "active_crop":    crop_r.data[0]    if crop_r.data    else None,
+            "latest_reading": sensor_r.data[0]  if sensor_r.data  else None}
+
+@app.get("/auth/me", tags=["Auth"])
+def get_me(authorization: str = Header(None)):
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+    db = get_db()
+    result = db.table("farmers").select("*").eq("id", farmer_id).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Farmer not found")
+    return result.data[0]
+
+@app.put("/auth/profile", tags=["Auth"])
+def update_profile(req: RegisterRequest, authorization: str = Header(None)):
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+    db = get_db()
+    db.table("farmers").update({
+        "agro_region": req.agro_region, "farm_size_ha": req.farm_size_ha,
+        "has_irrigation": req.has_irrigation, "budget_level": req.budget_level,
+        "province": req.province, "district": req.district, "language": req.language,
+    }).eq("id", farmer_id).execute()
+    return {"status": "updated"}
+
+@app.post("/farmer/crop", tags=["Farmer Data"])
+def set_farmer_crop(crop_id: str, crop_name: str, planting_date: str,
+                    authorization: str = Header(None)):
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+    db = get_db()
+    db.table("active_crops").update({"is_active": False}).eq("farmer_id", farmer_id).execute()
+    db.table("active_crops").insert({
+        "farmer_id": farmer_id, "crop_id": crop_id,
+        "crop_name": crop_name, "planting_date": planting_date, "is_active": True,
+    }).execute()
+    return {"status": "ok"}
+
+@app.post("/farmer/reading", tags=["Farmer Data"])
+def save_farmer_reading(req: FarmerSyncRequest):
+    db = get_db()
+    result = db.table("sensor_readings").insert({
+        "farmer_id": req.farmer_id, "device_id": req.device_id,
+        "soil_ph": req.soil_ph, "moisture_pct": req.moisture_pct,
+        "temp_c": req.temp_c, "source": req.source,
+    }).execute()
+    return {"status": "saved", "id": result.data[0]["id"]}
+
+@app.get("/farmer/readings", tags=["Farmer Data"])
+def get_farmer_readings(authorization: str = Header(None), limit: int = 30):
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+    db = get_db()
+    result = db.table("sensor_readings").select("*").eq("farmer_id", farmer_id).order("recorded_at", desc=True).limit(limit).execute()
+    return result.data
+
+@app.get("/admin/stats", tags=["Admin"])
+def admin_stats():
+    db = get_db()
+    try:
+        farmers  = db.table("farmers").select("id", count="exact").eq("is_demo", False).execute()
+        readings = db.table("sensor_readings").select("id", count="exact").execute()
+        crops    = db.table("active_crops").select("crop_name").eq("is_active", True).execute()
+        crop_counts: dict = {}
+        for c in (crops.data or []):
+            n = c["crop_name"]
+            crop_counts[n] = crop_counts.get(n, 0) + 1
+        return {"total_farmers": farmers.count, "total_readings": readings.count,
+                "active_crops": crop_counts}
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.get("/health", tags=["System"])
 def health():
