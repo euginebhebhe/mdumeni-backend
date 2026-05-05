@@ -318,104 +318,62 @@ Never:
 @app.post("/chat", tags=["AI Chat"])
 async def ai_chat(req: ChatRequest):
     """
-    Farmer question → Claude claude-sonnet-4-20250514 with farm context.
-    Requires ANTHROPIC_API_KEY in Render environment variables.
+    Farmer question → Groq Llama 3.3 70B with full farm context.
+    Requires GROQ_API_KEY in Render environment variables.
+    Free tier: 500,000 tokens/day — more than enough for pilot.
     """
     import os, httpx
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    api_key = os.environ.get("GROQ_API_KEY", "")
     if not api_key:
-        raise HTTPException(status_code=503, detail="AI chat not configured — ANTHROPIC_API_KEY missing")
+        raise HTTPException(status_code=503, detail="AI chat not configured — GROQ_API_KEY missing")
 
     ctx = req.context
-    system_prompt = f"""You are MDUMENI, an AI agronomist specialised in Zimbabwean smallholder farming.
-You have access to this farmer's live soil sensor data and farm profile:
+    system_prompt = """You are MDUMENI, an expert AI agronomist for Zimbabwean smallholder farmers.
+You give precise, practical advice based on the farmer's actual soil data.
+Always mention specific quantities, costs in USD, and Zimbabwean product names.
+Keep responses under 120 words. If asked in Shona, reply in Shona."""
 
-FARM DATA:
-- Soil pH: {ctx.get('soil_ph', 'unknown')}
-- Soil moisture: {ctx.get('moisture_pct', 'unknown')}%
-- Soil temperature: {ctx.get('temp_c', 'unknown')}°C
-- Active crop: {ctx.get('active_crop', 'not set')}
-- Agro-ecological region: Region {ctx.get('agro_region', 'unknown')}
-- Farm size: {ctx.get('farm_size_ha', 'unknown')} hectares
-- Budget level: {ctx.get('budget_level', 'unknown')} input
-- Current month: {ctx.get('current_month', 'unknown')}
+    user_message = f"""FARMER DATA:
+- Soil pH: {ctx.get('soil_ph', 'unknown')} | Moisture: {ctx.get('moisture_pct', 'unknown')}% | Temp: {ctx.get('temp_c', 'unknown')}°C
+- Crop: {ctx.get('active_crop', 'not set')} | Region: {ctx.get('agro_region', 'unknown')} | Farm: {ctx.get('farm_size_ha', 'unknown')} ha
+- Budget: {ctx.get('budget_level', 'unknown')} input | Month: {ctx.get('current_month', 'unknown')}
 
-GUIDELINES:
-- Always use the farmer's actual soil data in your answer
-- Be specific — give exact rates, quantities, and costs in USD
-- Reference Zimbabwean products, brands, and suppliers where possible
-- Base recommendations on AGRITEX and CIMMYT guidance for Zimbabwe
-- Keep answers practical and actionable — max 150 words
-- If asked in Shona or Ndebele, respond in that language
-- You know all 5 agro-ecological regions of Zimbabwe and their characteristics
-- You know all major Zimbabwe crops: maize, sugar beans, groundnuts, sorghum, tobacco, cotton, vegetables
-- Tone: knowledgeable, supportive, practical — like a trusted extension officer"""
+QUESTION: {req.question}"""
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                "https://api.anthropic.com/v1/messages",
+                "https://api.groq.com/openai/v1/chat/completions",
                 headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}",
                 },
                 json={
-                    "model": "claude-sonnet-4-20250514",
-                    "max_tokens": 400,
-                    "system": system_prompt,
-                    "messages": [{"role": "user", "content": req.question}],
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user",   "content": user_message},
+                    ],
+                    "max_tokens":  300,
+                    "temperature": 0.4,
                 }
             )
             data = response.json()
             if response.status_code != 200:
-                raise HTTPException(status_code=502, detail=f"AI API error: {data.get('error', {}).get('message', 'Unknown')}")
-            answer = data["content"][0]["text"]
-            return {"response": answer, "answer": answer, "source": "claude-ai"}
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Groq API error {response.status_code}: {data.get('error', {}).get('message', 'Unknown')}"
+                )
+            answer = data["choices"][0]["message"]["content"]
+            return {"response": answer, "answer": answer, "source": "groq-llama3"}
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="AI response timed out — try again")
-    except httpx.HTTPStatusError as e:
-        body = ""
-        try: body = e.response.text
-        except: pass
-        raise HTTPException(status_code=502, detail=f"Anthropic API error {e.response.status_code}: {body[:300]}")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"AI chat error: {type(e).__name__}: {str(e)}")
 
-
-# ── Farmer Auth endpoints ──────────────────────────────────────────────────────
-
-class RegisterRequest(BaseModel):
-    phone_number: str = Field(..., description="Zimbabwe phone e.g. 0771234567")
-    pin:          str = Field(..., min_length=4, max_length=4, pattern=r"^\d{4}$")
-    agro_region:  int = Field(..., ge=1, le=5)
-    farm_size_ha: float = Field(..., gt=0)
-    has_irrigation: bool = False
-    budget_level: str = Field("low", pattern="^(low|medium|high)$")
-    province:     str = ""
-    district:     str = ""
-    language:     str = "english"
-
-class LoginRequest(BaseModel):
-    phone_number: str
-    pin:          str = Field(..., min_length=4, max_length=4)
-
-class SyncRequest(BaseModel):
-    farmer_id:    str
-    soil_ph:      float
-    moisture_pct: int
-    temp_c:       float
-    device_id:    str = "MANUAL"
-    source:       str = "manual"
-
-def get_farmer_id(authorization: str = Header(None)) -> str | None:
-    """Extract farmer_id from Bearer token. Returns None if missing/invalid."""
-    if not authorization or not authorization.startswith("Bearer "):
-        return None
-    token = authorization.split(" ", 1)[1]
-    payload = verify_token(token)
-    return payload.get("farmer_id") if payload else None
 
 @app.post("/auth/register", tags=["Auth"])
 def register(req: RegisterRequest):
