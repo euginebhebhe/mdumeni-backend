@@ -3,7 +3,7 @@ import os, hashlib, hmac, json, base64, time
 
 def _secret() -> str:
     """Read JWT_SECRET fresh each call — avoids module-load timing issues."""
-    return os.environ.get("JWT_SECRET", "mdumeni-dev-secret-change-in-production")
+    return os.environ.get("JWT_SECRET", "mdumeni-2026-intelli-farming")
 
 def hash_pin(pin: str, phone: str) -> str:
     return hashlib.sha256(f"{phone}:{pin}:mdumeni-salt".encode()).hexdigest()
