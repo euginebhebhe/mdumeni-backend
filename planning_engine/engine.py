@@ -82,8 +82,8 @@ SEEDING_RATE_KG_PER_HA = {
     "CROP_016": 2,     # Rape
     "CROP_017": 2,     # Watermelon
     "CROP_018": 2,     # Butternut squash
-    "CROP_019": 0,     # Sweet potato — vine cuttings, no seed cost
-    "CROP_020": 0,     # Cassava — stem cuttings
+    "CROP_019": 79,     # Sweet potato — vine cuttings, no seed cost
+    "CROP_020": 700,     # Cassava — stem cuttings
     "CROP_021": 2000,  # Irish potato — seed tubers (kg/ha)
     "CROP_022": 0.3,   # Papaya
     "CROP_023": 50,    # Mango (seedlings — price per seedling, not kg)

@@ -163,7 +163,7 @@ CROPS = [
     {
         "id": "CROP_004",
         "name": "Pearl millet",
-        "local_names": {"shona": "Mhunga", "ndebele": "Amabele omhlope"},
+        "local_names": {"shona": "Mhunga", "ndebele": "Inyawuthi"},
         "type": "cereal",
         "agro_regions": [3, 4, 5],
         "soil": {
@@ -245,7 +245,7 @@ CROPS = [
     {
         "id": "CROP_006",
         "name": "Soybeans",
-        "local_names": {"shona": "Nyemba yekuAmerica", "ndebele": "Soybeans"},
+        "local_names": {"shona": "Soya Bhinzi", "ndebele": "Soybeans"},
         "type": "legume",
         "agro_regions": [1, 2],
         "soil": {
@@ -286,7 +286,7 @@ CROPS = [
     {
         "id": "CROP_007",
         "name": "Groundnuts",
-        "local_names": {"shona": "Nzungu", "ndebele": "Amajakolosi"},
+        "local_names": {"shona": "Nzungu", "ndebele": "Amazambane"},
         "type": "legume",
         "agro_regions": [2, 3, 4],
         "soil": {
@@ -327,7 +327,7 @@ CROPS = [
     {
         "id": "CROP_008",
         "name": "Sugar beans",
-        "local_names": {"shona": "Nyemba", "ndebele": "Izihlumela"},
+        "local_names": {"shona": "Shuga Bhinzi", "ndebele": "Ubhontshisi obomvu"},
         "type": "legume",
         "agro_regions": [1, 2, 3],
         "soil": {
@@ -367,7 +367,7 @@ CROPS = [
     {
         "id": "CROP_009",
         "name": "Cowpeas",
-        "local_names": {"shona": "Nyemba", "ndebele": "Amabhontshisi"},
+        "local_names": {"shona": "Nyemba", "ndebele": "Indumba"},
         "type": "legume",
         "agro_regions": [3, 4, 5],
         "soil": {
@@ -408,7 +408,7 @@ CROPS = [
     {
         "id": "CROP_010",
         "name": "Cotton",
-        "local_names": {"shona": "Tsvero", "ndebele": "Indwangu"},
+        "local_names": {"shona": "Donje", "ndebele": "Ukotshini"},
         "type": "cash_crop",
         "agro_regions": [3, 4, 5],
         "soil": {
@@ -532,7 +532,7 @@ CROPS = [
     {
         "id": "CROP_013",
         "name": "Tomatoes",
-        "local_names": {"shona": "Tomato", "ndebele": "Utamatisi"},
+        "local_names": {"shona": "Tomato", "ndebele": "Amatamatisi"},
         "type": "vegetable",
         "agro_regions": [1, 2, 3],
         "soil": {
@@ -617,7 +617,7 @@ CROPS = [
     {
         "id": "CROP_015",
         "name": "Cabbages",
-        "local_names": {"shona": "Kabheeji", "ndebele": "Ikhabishi"},
+        "local_names": {"shona": "Kabheji", "ndebele": "Ikhabishi"},
         "type": "vegetable",
         "agro_regions": [1, 2, 3],
         "soil": {
@@ -658,7 +658,7 @@ CROPS = [
     {
         "id": "CROP_016",
         "name": "Rape / Leaf vegetable",
-        "local_names": {"shona": "Muboora / Rape", "ndebele": "Imbhida"},
+        "local_names": {"shona": "Rape", "ndebele": "Rape"},
         "type": "vegetable",
         "agro_regions": [1, 2, 3, 4],
         "soil": {
@@ -698,7 +698,7 @@ CROPS = [
     {
         "id": "CROP_017",
         "name": "Watermelon",
-        "local_names": {"shona": "Wadhdhera", "ndebele": "Ikhabe"},
+        "local_names": {"shona": "Vise/Nwiwa", "ndebele": "Ikhabe"},
         "type": "vegetable",
         "agro_regions": [2, 3, 4, 5],
         "soil": {
@@ -781,7 +781,7 @@ CROPS = [
     {
         "id": "CROP_019",
         "name": "Sweet potato",
-        "local_names": {"shona": "Mbambaira", "ndebele": "Ubhatata"},
+        "local_names": {"shona": "Mbambaira", "ndebele": "Imbambayila"},
         "type": "root_tuber",
         "agro_regions": [2, 3, 4],
         "soil": {
@@ -861,7 +861,7 @@ CROPS = [
     {
         "id": "CROP_021",
         "name": "Irish potato",
-        "local_names": {"shona": "Mbatatisi", "ndebele": "Izambane"},
+        "local_names": {"shona": "Mbatatisi/Magwiri", "ndebele": "Amagwili/Amagabhade"},
         "type": "root_tuber",
         "agro_regions": [1, 2],
         "soil": {
@@ -946,7 +946,7 @@ CROPS = [
     {
         "id": "CROP_023",
         "name": "Mango",
-        "local_names": {"shona": "Mango", "ndebele": "Umango"},
+        "local_names": {"shona": "Mango", "ndebele": "Mango"},
         "type": "fruit",
         "agro_regions": [3, 4, 5],
         "soil": {
@@ -1072,7 +1072,7 @@ CROPS = [
     {
         "id": "CROP_026",
         "name": "Sugar cane",
-        "local_names": {"shona": "Shuga", "ndebele": "Umoba"},
+        "local_names": {"shona": "Nzimbe", "ndebele": "Umoba"},
         "type": "cash_crop",
         "agro_regions": [4, 5],
         "soil": {
@@ -1110,7 +1110,7 @@ CROPS = [
     {
         "id": "CROP_027",
         "name": "Sesame",
-        "local_names": {"shona": "Mangowo", "ndebele": "Umsangu"},
+        "local_names": {"shona": "Runinga", "ndebele": "Isibuywana"},
         "type": "oilseed",
         "agro_regions": [3, 4, 5],
         "soil": {
@@ -1229,7 +1229,7 @@ CROPS = [
     {
         "id": "CROP_030",
         "name": "Chillies / Peppers",
-        "local_names": {"shona": "Piri piri", "ndebele": "Ipelepele"},
+        "local_names": {"shona": "Mhiripiri", "ndebele": "Ipepula"},
         "type": "vegetable",
         "agro_regions": [2, 3, 4],
         "soil": {
