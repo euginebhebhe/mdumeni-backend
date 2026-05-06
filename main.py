@@ -14,8 +14,8 @@ All endpoints follow the same pattern:
   - Structured JSON response
   - Health check at /health
 
-Base URL:   http://localhost:8000
-Docs:       http://localhost:8000/docs  (Swagger UI — auto-generated)
+Base URL:   'https://mdumeni-api.onrender.com';
+Docs:       'https://mdumeni-api.onrender.com/docs'  (Swagger UI — auto-generated)
 
 Run:
     pip install fastapi uvicorn
@@ -490,7 +490,7 @@ def login(req: LoginRequest):
 @app.get("/auth/me", tags=["Auth"])
 def get_me(authorization: str = Header(None)):
     """Get current farmer profile from token."""
-    farmer_id = get_farmer_id(authorization)
+    farmer_id = extract_farmer_id(authorization)
     if not farmer_id:
         raise HTTPException(status_code=401, detail="Invalid or missing token")
 
@@ -505,7 +505,7 @@ def get_me(authorization: str = Header(None)):
 @app.put("/auth/profile", tags=["Auth"])
 def update_profile(req: RegisterRequest, authorization: str = Header(None)):
     """Update farmer profile."""
-    farmer_id = get_farmer_id(authorization)
+    farmer_id = extract_farmer_id(authorization)
     if not farmer_id:
         raise HTTPException(status_code=401, detail="Invalid or missing token")
 
@@ -530,7 +530,7 @@ def set_farmer_crop(
     authorization: str = Header(None)
 ):
     """Set the farmer's active crop and planting date."""
-    farmer_id = get_farmer_id(authorization)
+    farmer_id = extract_farmer_id(authorization)
     if not farmer_id:
         raise HTTPException(status_code=401, detail="Invalid or missing token")
 
@@ -566,7 +566,7 @@ def save_farmer_reading(req: FarmerSyncRequest):
 @app.get("/farmer/readings", tags=["Farmer Data"])
 def get_farmer_readings(authorization: str = Header(None), limit: int = 30):
     """Get the farmer's sensor reading history."""
-    farmer_id = get_farmer_id(authorization)
+    farmer_id = extract_farmer_id(authorization)
     if not farmer_id:
         raise HTTPException(status_code=401, detail="Invalid or missing token")
 
@@ -1151,6 +1151,6 @@ if __name__ == "__main__":
     import uvicorn
     print("\nMDUMENI Intelligence Engine API")
     print(f"Crops loaded: {len(CROPS)}")
-    print("Starting on http://localhost:8000")
-    print("Swagger docs: http://localhost:8000/docs\n")
+    print("Starting on https://mdumeni-api.onrender.com")
+    print("Swagger docs: https://mdumeni-api.onrender.com/docs\n")
     uvicorn.run("api_main:app", host="0.0.0.0", port=8000, reload=True)

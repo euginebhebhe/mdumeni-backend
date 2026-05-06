@@ -12,7 +12,7 @@ import time
 from datetime import datetime, timezone
 
 # Secret for signing tokens — set in Render env vars
-JWT_SECRET = os.environ.get("JWT_SECRET", "mdumeni-dev-secret-change-in-production")
+JWT_SECRET = os.environ.get("JWT_SECRET", "mdumeni-2026-intelli-farming")
 
 def hash_pin(pin: str, phone: str) -> str:
     """SHA-256 hash of PIN + phone as salt — not reversible."""
