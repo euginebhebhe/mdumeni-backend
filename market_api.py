@@ -368,10 +368,7 @@ def calculate_profit(req: ProfitCalcRequest):
                            ("INP_CHLORPYR_1L", 1.5, "Insecticide 1.5L/ha"),
                            ("INP_MANCOZEB_1KG", 3, "Fungicide 3kg/ha")],
             },
-        }
-
-        # Sorghum
-            "CROP_006": {
+            "CROP_006": { # Sorghum
                 "low":    [("INP_SEED_SG_1KG", 10, "Sorghum seed 10kg/ha"),
                            ("INP_COMP_D_50", 2, "Compound D 2 bags/ha")],
                 "medium": [("INP_SEED_SG_1KG", 10, "Sorghum seed 10kg/ha"),
@@ -384,8 +381,8 @@ def calculate_profit(req: ProfitCalcRequest):
                            ("INP_CHLORPYR_1L", 1.5, "Insecticide 1.5L/ha"),
                            ("INP_MANCOZEB_1KG", 1, "Fungicide 1kg/ha")],
             },
-            # Soybeans
-            "CROP_009": {
+            
+            "CROP_009": { # Soybeans
                 "low":    [("INP_COMP_D_50", 2, "Compound D 2 bags/ha"),
                            ("INP_SEED_SB_1KG", 80, "Soybean seed 80kg/ha")],
                 "medium": [("INP_COMP_D_50", 2, "Compound D 2 bags/ha"),
@@ -399,8 +396,8 @@ def calculate_profit(req: ProfitCalcRequest):
                            ("INP_MANCOZEB_1KG", 2, "Fungicide 2kg/ha"),
                            ("INP_GLYPHOSATE_1L", 1, "Herbicide 1L/ha")],
             },
-            # Tomatoes
-            "CROP_019": {
+            
+            "CROP_019": { # Tomatoes
                 "low":    [("INP_COMP_D_50", 3, "Compound D 3 bags/ha"),
                            ("INP_CHLORPYR_1L", 2, "Insecticide 2L/ha"),
                            ("INP_MANCOZEB_1KG", 3, "Fungicide 3kg/ha")],
@@ -416,8 +413,8 @@ def calculate_profit(req: ProfitCalcRequest):
                            ("INP_DIMETHOATE_1L", 2, "Aphid control 2L/ha"),
                            ("INP_LAMBDA_1L", 1, "Lambda 1L/ha")],
             },
-            # Onions
-            "CROP_020": {
+            
+            "CROP_020": { # Onions
                 "low":    [("INP_COMP_D_50", 3, "Compound D 3 bags/ha"),
                            ("INP_CHLORPYR_1L", 1, "Insecticide 1L/ha")],
                 "medium": [("INP_COMP_D_50", 3, "Compound D 3 bags/ha"),
@@ -430,8 +427,8 @@ def calculate_profit(req: ProfitCalcRequest):
                            ("INP_MANCOZEB_1KG", 4, "Fungicide 4kg/ha"),
                            ("INP_DIMETHOATE_1L", 2, "Aphid control 2L/ha")],
             },
-            # Sunflower
-            "CROP_010": {
+            
+            "CROP_010": { # Sunflower
                 "low":    [("INP_COMP_D_50", 2, "Compound D 2 bags/ha")],
                 "medium": [("INP_COMP_D_50", 2, "Compound D 2 bags/ha"),
                            ("INP_AN_345_50", 2, "AN 34.5% 2 bags/ha"),
@@ -441,8 +438,8 @@ def calculate_profit(req: ProfitCalcRequest):
                            ("INP_CHLORPYR_1L", 1.5, "Insecticide 1.5L/ha"),
                            ("INP_MANCOZEB_1KG", 2, "Fungicide 2kg/ha")],
             },
-            # Cotton
-            "CROP_011": {
+            
+            "CROP_011": { # Cotton
                 "low":    [("INP_COMP_D_50", 4, "Compound D 4 bags/ha"),
                            ("INP_CHLORPYR_1L", 3, "Insecticide 3L/ha")],
                 "medium": [("INP_COMP_D_50", 4, "Compound D 4 bags/ha"),
