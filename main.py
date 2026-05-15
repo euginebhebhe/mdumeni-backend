@@ -14,8 +14,8 @@ All endpoints follow the same pattern:
   - Structured JSON response
   - Health check at /health
 
-Base URL:   'https://mdumeni-api.onrender.com';
-Docs:       'https://mdumeni-api.onrender.com/docs'  (Swagger UI — auto-generated)
+Base URL:   http://mdumeni-api.onrender.com
+Docs:       http://mdumeni-api.onrender.com/docs  (Swagger UI — auto-generated)
 
 Run:
     pip install fastapi uvicorn
@@ -643,6 +643,26 @@ def get_season_history(authorization: str = Header(None)):
         .order("planting_date", desc=True).execute()
     return result.data
 
+
+@app.get("/debug/auth", tags=["System"])
+def debug_auth(authorization: str = Header(None)):
+    """Debug endpoint — tests JWT verification. Remove after fix confirmed."""
+    import os
+    secret = os.environ.get("JWT_SECRET", "NOT_SET")
+    if not authorization:
+        return {"error": "No Authorization header", "secret_prefix": secret[:8]}
+    if not authorization.startswith("Bearer "):
+        return {"error": "No Bearer prefix", "received": authorization[:20]}
+    token = authorization.split(" ", 1)[1]
+    result = verify_token(token)
+    return {
+        "token_prefix":   token[:20],
+        "secret_prefix":  secret[:8],
+        "secret_length":  len(secret),
+        "verify_result":  result,
+        "is_valid":       result is not None,
+    }
+
 @app.get("/health", tags=["System"])
 def health():
     """Check API health and engine status."""
@@ -1151,6 +1171,6 @@ if __name__ == "__main__":
     import uvicorn
     print("\nMDUMENI Intelligence Engine API")
     print(f"Crops loaded: {len(CROPS)}")
-    print("Starting on https://mdumeni-api.onrender.com")
-    print("Swagger docs: https://mdumeni-api.onrender.com/docs\n")
+    print("Starting on http://mdumeni-api.onrender.com")
+    print("Swagger docs: http://mdumeni-api.onrender.com/docs\n")
     uvicorn.run("api_main:app", host="0.0.0.0", port=8000, reload=True)
