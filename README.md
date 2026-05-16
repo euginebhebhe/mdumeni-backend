@@ -4,7 +4,7 @@
 This is the backend server for the MDUMENI mobile app.  
 It runs all 4 AI engines and exposes them via a REST API.
 
-Live docs once deployed: `https://YOUR-APP.onrender.com/docs`
+Live docs once deployed: `https://mdumeni-api.onrender.com/docs`
 
 ---
 
@@ -24,7 +24,7 @@ Then go to **github.com** → click **New repository** → name it `mdumeni-back
 
 Copy the commands GitHub shows you (they look like this):
 ```
-git remote add origin https://github.com/YOUR-USERNAME/mdumeni-backend.git
+git remote add origin https://github.com/euginebhebhe/mdumeni-backend.git
 git branch -M main
 git push -u origin main
 ```
@@ -46,7 +46,7 @@ No credit card required.
 2. Click **Connect a repository** → select `mdumeni-backend`
 3. Render auto-detects Python. Fill in these fields:
    - **Name:** `mdumeni-api`
-   - **Region:** Oregon (or closest to Zimbabwe)
+   - **Region:** Oregon (closest to Zimbabwe)
    - **Branch:** `main`
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120`
@@ -81,14 +81,6 @@ Full interactive docs:
 
 Open `mdumeni-app/src/services/api.ts` on your computer.  
 Find this line:
-
-```typescript
-const BASE_URL = __DEV__
-  ? 'http://192.168.1.100:8000'   // local dev
-  : 'https://api.mdumeni.intelli-farming.com';
-```
-
-Change it to:
 
 ```typescript
 const BASE_URL = 'https://mdumeni-api.onrender.com';
