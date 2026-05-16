@@ -9,8 +9,30 @@ Single API that exposes all four intelligence engines + market intelligence:
   Engine 4 — Pest & Disease
   Engine 5 — Market Intelligence (prices, profit, alerts)
 
+<<<<<<< HEAD
 Base URL:   https://mdumeni-api.onrender.com
 Docs:       https://mdumeni-api.onrender.com/docs
+=======
+All endpoints follow the same pattern:
+  - POST body with JSON payload
+  - Validated input with clear error messages
+  - Structured JSON response
+  - Health check at /health
+
+Base URL:   http://mdumeni-api.onrender.com
+Docs:       http://mdumeni-api.onrender.com/docs  (Swagger UI — auto-generated)
+
+Run:
+    pip install fastapi uvicorn
+    uvicorn api_main:app --reload --port 8000
+
+Or production:
+    gunicorn api_main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+
+Offline fallback:
+    The Flask api.py in /crop_engine/ works without FastAPI if uvicorn
+    is unavailable. This file is the production integration layer.
+>>>>>>> 2b0ebb970cfb988e613c58929dfc8d132d385e0e
 """
 
 import sys
@@ -245,7 +267,407 @@ class YieldRecordRequest(BaseModel):
     total_cost_usd:     float = 0
     gross_revenue_usd:  float = 0
     net_profit_usd:     float = 0
+<<<<<<< HEAD
     notes:              str   = ""
+=======
+    notes:              str = ""
+
+SYSTEM_PROMPT = """You are MDUMENI, a knowledgeable and friendly AI agronomist specialising in Zimbabwean agriculture.
+
+You work with smallholder farmers across Zimbabwe's 5 agro-ecological regions. You know:
+- All 30 major Zimbabwean crops: maize, sugar beans, groundnuts, sorghum, pearl millet, cotton, tobacco, soya, sunflower, sesame, cassava, sweet potato, cowpeas, and more
+- Zimbabwe's AGRITEX crop management recommendations
+- Local product names: AN 34.5%, Compound D, Compound S, Lafarge lime, Bt DiPel, Proclaim, Karate
+- Local market prices, GMB procedures, Cottco contracts, Seed Co varieties (ZM521, SC403, SC627)
+- Regional rainfall patterns: Region I (>1000mm), II (750-1000mm), III (650-800mm), IV (450-650mm), V (<450mm)
+- Soil challenges: acidic granitic soils in Mashonaland, alkaline soils in parts of Matabeleland
+- Climate challenges: El Niño droughts, mid-season dry spells, late onset of rains
+
+Always:
+- Use the farmer's actual farm data (pH, moisture, crop, region, farm size, budget) in your answer
+- Give specific numbers: kg/ha rates, costs in USD, timing in days
+- Recommend products available in Zimbabwe
+- Keep answers practical and actionable — farmers implement advice the same day
+- Be encouraging and respectful
+- For critical issues (very low pH, severe pest outbreak), be direct about urgency
+
+Never:
+- Give generic answers that ignore the farmer's actual data
+- Recommend products not available in Zimbabwe
+- Use overly technical language without explanation
+- Give advice that contradicts AGRITEX standards without good reason
+"""
+
+@app.post("/chat", tags=["AI Chat"])
+async def ai_chat(req: ChatRequest):
+    """
+    Farmer question → Groq Llama 3.3 70B with full farm context.
+    Requires GROQ_API_KEY in Render environment variables.
+    Free tier: 500,000 tokens/day — more than enough for pilot.
+    """
+    import os, httpx
+
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="AI chat not configured — GROQ_API_KEY missing")
+
+    ctx = req.context
+    system_prompt = """You are MDUMENI, an expert AI agronomist for Zimbabwean smallholder farmers.
+You give precise, practical advice based on the farmer's actual soil data.
+Always mention specific quantities, costs in USD, and Zimbabwean product names.
+Keep responses under 120 words. If asked in Shona, reply in Shona."""
+
+    user_message = f"""FARMER DATA:
+- Soil pH: {ctx.get('soil_ph', 'unknown')} | Moisture: {ctx.get('moisture_pct', 'unknown')}% | Temp: {ctx.get('temp_c', 'unknown')}°C
+- Crop: {ctx.get('active_crop', 'not set')} | Region: {ctx.get('agro_region', 'unknown')} | Farm: {ctx.get('farm_size_ha', 'unknown')} ha
+- Budget: {ctx.get('budget_level', 'unknown')} input | Month: {ctx.get('current_month', 'unknown')}
+
+QUESTION: {req.question}"""
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}",
+                },
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user",   "content": user_message},
+                    ],
+                    "max_tokens":  300,
+                    "temperature": 0.4,
+                }
+            )
+            data = response.json()
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Groq API error {response.status_code}: {data.get('error', {}).get('message', 'Unknown')}"
+                )
+            answer = data["choices"][0]["message"]["content"]
+            return {"response": answer, "answer": answer, "source": "groq-llama3"}
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="AI response timed out — try again")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"AI chat error: {type(e).__name__}: {str(e)}")
+
+
+@app.post("/auth/register", tags=["Auth"])
+def register(req: RegisterRequest):
+    """Register a new farmer with phone number and 4-digit PIN."""
+    db  = get_db()
+    phone = normalize_phone(req.phone_number)
+
+    # Check if already registered
+    existing = db.table("farmers").select("id").eq("phone_number", phone).execute()
+    if existing.data:
+        raise HTTPException(status_code=409, detail="Phone number already registered")
+
+    pin_hash = hash_pin(req.pin, phone)
+
+    result = db.table("farmers").insert({
+        "phone_number":   phone,
+        "pin_hash":       pin_hash,
+        "agro_region":    req.agro_region,
+        "farm_size_ha":   req.farm_size_ha,
+        "has_irrigation": req.has_irrigation,
+        "budget_level":   req.budget_level,
+        "province":       req.province,
+        "district":       req.district,
+        "language":       req.language,
+        "is_demo":        False,
+    }).execute()
+
+    farmer = result.data[0]
+    token  = create_token(farmer["id"], phone)
+
+    return {
+        "status":    "registered",
+        "farmer_id": farmer["id"],
+        "token":     token,
+        "farmer":    farmer,
+    }
+
+
+@app.post("/auth/login", tags=["Auth"])
+def login(req: LoginRequest):
+    """Login with phone number and PIN. Returns JWT token."""
+    db    = get_db()
+    phone = normalize_phone(req.phone_number)
+
+    result = db.table("farmers").select("*").eq("phone_number", phone).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Phone number not found. Register first.")
+
+    farmer = result.data[0]
+
+    if not verify_pin(req.pin, phone, farmer["pin_hash"]):
+        raise HTTPException(status_code=401, detail="Incorrect PIN")
+
+    token = create_token(farmer["id"], phone)
+
+    # Load active crop
+    crop_result = db.table("active_crops") \
+        .select("*").eq("farmer_id", farmer["id"]).eq("is_active", True) \
+        .order("created_at", desc=True).limit(1).execute()
+
+    # Load latest sensor reading
+    sensor_result = db.table("sensor_readings") \
+        .select("*").eq("farmer_id", farmer["id"]) \
+        .order("recorded_at", desc=True).limit(1).execute()
+
+    return {
+        "status":    "ok",
+        "farmer_id": farmer["id"],
+        "token":     token,
+        "farmer":    farmer,
+        "active_crop":    crop_result.data[0] if crop_result.data else None,
+        "latest_reading": sensor_result.data[0] if sensor_result.data else None,
+    }
+
+
+@app.get("/auth/me", tags=["Auth"])
+def get_me(authorization: str = Header(None)):
+    """Get current farmer profile from token."""
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db     = get_db()
+    result = db.table("farmers").select("*").eq("id", farmer_id).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Farmer not found")
+
+    return result.data[0]
+
+
+@app.put("/auth/profile", tags=["Auth"])
+def update_profile(req: RegisterRequest, authorization: str = Header(None)):
+    """Update farmer profile."""
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db = get_db()
+    db.table("farmers").update({
+        "agro_region":    req.agro_region,
+        "farm_size_ha":   req.farm_size_ha,
+        "has_irrigation": req.has_irrigation,
+        "budget_level":   req.budget_level,
+        "province":       req.province,
+        "district":       req.district,
+        "language":       req.language,
+        "updated_at":     datetime.utcnow().isoformat(),
+    }).eq("id", farmer_id).execute()
+
+    return {"status": "updated"}
+
+
+@app.post("/farmer/crop", tags=["Farmer Data"])
+def set_farmer_crop(
+    crop_id: str, crop_name: str, planting_date: str,
+    authorization: str = Header(None)
+):
+    """Set the farmer's active crop and planting date."""
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db = get_db()
+    # Deactivate previous crops
+    db.table("active_crops").update({"is_active": False}).eq("farmer_id", farmer_id).execute()
+    # Insert new
+    db.table("active_crops").insert({
+        "farmer_id":    farmer_id,
+        "crop_id":      crop_id,
+        "crop_name":    crop_name,
+        "planting_date": planting_date,
+        "is_active":    True,
+    }).execute()
+    return {"status": "ok"}
+
+
+@app.post("/farmer/reading", tags=["Farmer Data"])
+def save_farmer_reading(req: FarmerSyncRequest):
+    """Save a sensor reading linked to a specific farmer."""
+    db = get_db()
+    result = db.table("sensor_readings").insert({
+        "farmer_id":   req.farmer_id,
+        "device_id":   req.device_id,
+        "soil_ph":     req.soil_ph,
+        "moisture_pct": req.moisture_pct,
+        "temp_c":      req.temp_c,
+        "source":      req.source,
+    }).execute()
+    return {"status": "saved", "id": result.data[0]["id"]}
+
+
+@app.get("/farmer/readings", tags=["Farmer Data"])
+def get_farmer_readings(authorization: str = Header(None), limit: int = 30):
+    """Get the farmer's sensor reading history."""
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+
+    db = get_db()
+    result = db.table("sensor_readings") \
+        .select("*").eq("farmer_id", farmer_id) \
+        .order("recorded_at", desc=True).limit(limit).execute()
+    return result.data
+
+
+@app.get("/admin/stats", tags=["Admin"])
+def admin_stats():
+    """Aggregate pilot statistics — for research dashboard."""
+    db = get_db()
+    try:
+        farmers    = db.table("farmers").select("id", count="exact").eq("is_demo", False).execute()
+        readings   = db.table("sensor_readings").select("id", count="exact").execute()
+        crops      = db.table("active_crops").select("crop_name").eq("is_active", True).execute()
+
+        crop_counts: dict = {}
+        for c in (crops.data or []):
+            name = c["crop_name"]
+            crop_counts[name] = crop_counts.get(name, 0) + 1
+
+        return {
+            "total_farmers":  farmers.count,
+            "total_readings": readings.count,
+            "active_crops":   crop_counts,
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ── Farmer Auth endpoints ──────────────────────────────────────────────────────
+
+
+def extract_farmer_id(authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ", 1)[1]
+    payload = verify_token(token)
+    return payload.get("farmer_id") if payload else None
+
+@app.post("/farmer/yield", tags=["Season History"])
+def record_yield(req: YieldRecordRequest):
+    """Record actual harvest yield — saved to season_history for research analysis."""
+    db = get_db()
+    result = db.table("season_history").insert({
+        "farmer_id":          req.farmer_id,
+        "crop_id":            req.crop_id,
+        "crop_name":          req.crop_name,
+        "planting_date":      req.planting_date,
+        "harvest_date":       req.harvest_date,
+        "farm_size_ha":       req.farm_size_ha,
+        "budget_level":       req.budget_level,
+        "predicted_yield_kg": req.predicted_yield_kg,
+        "actual_yield_kg":    req.actual_yield_kg,
+        "total_cost_usd":     req.total_cost_usd,
+        "gross_revenue_usd":  req.gross_revenue_usd,
+        "net_profit_usd":     req.net_profit_usd,
+        "notes":              req.notes,
+    }).execute()
+    return {"status": "recorded", "id": result.data[0]["id"]}
+
+@app.get("/farmer/history", tags=["Season History"])
+def get_season_history(authorization: str = Header(None)):
+    """Get all completed seasons for this farmer."""
+    farmer_id = extract_farmer_id(authorization)
+    if not farmer_id:
+        raise HTTPException(status_code=401, detail="Invalid or missing token")
+    db = get_db()
+    result = db.table("season_history") \
+        .select("*").eq("farmer_id", farmer_id) \
+        .order("planting_date", desc=True).execute()
+    return result.data
+
+
+@app.get("/debug/auth", tags=["System"])
+def debug_auth(authorization: str = Header(None)):
+    """Debug endpoint — tests JWT verification. Remove after fix confirmed."""
+    import os
+    secret = os.environ.get("JWT_SECRET", "NOT_SET")
+    if not authorization:
+        return {"error": "No Authorization header", "secret_prefix": secret[:8]}
+    if not authorization.startswith("Bearer "):
+        return {"error": "No Bearer prefix", "received": authorization[:20]}
+    token = authorization.split(" ", 1)[1]
+    result = verify_token(token)
+    return {
+        "token_prefix":   token[:20],
+        "secret_prefix":  secret[:8],
+        "secret_length":  len(secret),
+        "verify_result":  result,
+        "is_valid":       result is not None,
+    }
+
+@app.get("/health", tags=["System"])
+def health():
+    """Check API health and engine status."""
+    return {
+        "status":         "ok",
+        "service":        "MDUMENI Intelligence Engine",
+        "version":        "1.0.0",
+        "timestamp":      datetime.utcnow().isoformat() + "Z",
+        "engines": {
+            "crop_recommendation": "ready",
+            "farming_calendar":    "ready",
+            "planning":            "ready",
+            "pest_disease":        "ready",
+        },
+        "dataset": {
+            "crops":    len(CROPS),
+            "regions":  5,
+        }
+    }
+
+
+@app.get("/crops", tags=["Dataset"])
+def list_crops(type: Optional[str] = None, region: Optional[int] = None):
+    """
+    List all crops in the dataset.
+    Optional filters: type (cereal, legume, vegetable, etc.), region (1–5).
+    """
+    results = []
+    for c in CROPS:
+        if type and c["type"] != type:
+            continue
+        if region and region not in c["agro_regions"]:
+            continue
+        results.append({
+            "id":          c["id"],
+            "name":        c["name"],
+            "shona":       c["local_names"].get("shona", ""),
+            "ndebele":     c["local_names"].get("ndebele", ""),
+            "type":        c["type"],
+            "regions":     c["agro_regions"],
+            "irrigation":  c["irrigation"]["required"],
+            "market_usd":  c["market"]["price_usd_per_kg"],
+            "demand":      c["market"]["demand"],
+        })
+    return {"count": len(results), "crops": results}
+
+
+@app.get("/crops/{crop_id}", tags=["Dataset"])
+def get_crop(crop_id: str):
+    """Get full agronomic profile for a single crop."""
+    crop = CROP_BY_ID.get(crop_id.upper())
+    if not crop:
+        raise HTTPException(status_code=404, detail=f"Crop '{crop_id}' not found.")
+    return crop
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ENGINE 1 — CROP RECOMMENDATION
+# ══════════════════════════════════════════════════════════════════════════════
+>>>>>>> 2b0ebb970cfb988e613c58929dfc8d132d385e0e
 
 class RecommendRequest(BaseModel):
     soil_ph:           float = Field(..., ge=3.0, le=9.0,  description="Soil pH reading from sensor")
@@ -894,7 +1316,13 @@ if __name__ == "__main__":
     import uvicorn
     print("\nMDUMENI Intelligence Engine API v2.0.0")
     print(f"Crops loaded: {len(CROPS)}")
+<<<<<<< HEAD
     print("Market intelligence: enabled")
     print("Starting on http://mdumeni-api.onrender.com")
     print("Swagger docs: http://mdumeni-api.onrender.com/docs\n")
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+=======
+    print("Starting on http://mdumeni-api.onrender.com")
+    print("Swagger docs: http://mdumeni-api.onrender.com/docs\n")
+    uvicorn.run("api_main:app", host="0.0.0.0", port=8000, reload=True)
+>>>>>>> 2b0ebb970cfb988e613c58929dfc8d132d385e0e
