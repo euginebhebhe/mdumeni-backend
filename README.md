@@ -110,6 +110,8 @@ Save the file. The app running in Expo Go will automatically reload and now call
 | `POST /threats` | Active pest and disease threats |
 | `POST /diagnose` | Symptom-based diagnosis |
 | `GET /docs` | Interactive Swagger documentation |
+| `POST /chat` | AI chat |
+
 
 ---
 
