@@ -1,0 +1,59 @@
+# ── HOW TO ADD MARKETPLACE TO YOUR BACKEND ─────────────────
+#
+# 1. Copy marketplace.py into your backend routers/ folder
+#
+# 2. In main.py add these two lines:
+#
+#    from routers.marketplace import router as marketplace_router
+#    app.include_router(marketplace_router)
+#
+# 3. Run marketplace_tables.sql in Supabase SQL editor
+#    (creates marketplace_listings, marketplace_deals,
+#     marketplace_alerts, marketplace_photos tables)
+#
+# 4. Create Supabase Storage bucket:
+#    - Name: marketplace-photos
+#    - Public: true
+#    - File size limit: 5 MB
+#
+# 5. Optional: add SMS_API_KEY env var in Render dashboard
+#    when you integrate Econet/Netone bulk SMS
+#
+# 6. Deploy to Render — push to GitHub and it auto-deploys
+#
+# ── ENDPOINTS AFTER DEPLOYMENT ──────────────────────────────
+#
+# POST   /marketplace/listing              create listing
+# GET    /marketplace/listings             browse listings
+# GET    /marketplace/listings/mine        my listings
+# PUT    /marketplace/listing/{id}         update listing
+# DELETE /marketplace/listing/{id}         delete listing
+# POST   /marketplace/listing/{id}/deal    confirm deal
+# POST   /marketplace/listing/{id}/boost   boost listing
+# POST   /marketplace/listing/{id}/photo   upload photo
+# GET    /marketplace/alerts               get price alerts
+# POST   /marketplace/alert                create price alert
+# POST   /marketplace/broadcast            SMS broadcast
+#
+# ── TEST ENDPOINTS ──────────────────────────────────────────
+#
+# Test in Swagger at: https://mdumeni-api.onrender.com/docs
+#
+# Quick test create listing:
+# curl -X POST https://mdumeni-api.onrender.com/marketplace/listing \
+#   -H "Content-Type: application/json" \
+#   -d '{
+#     "type": "selling",
+#     "crop_name": "Sugar beans",
+#     "quantity_kg": 500,
+#     "price_usd_kg": 0.83,
+#     "quality_grade": "A",
+#     "province": "Mashonaland East",
+#     "district": "Marondera",
+#     "phone": "+263 77 123 4567",
+#     "farmer_name": "Tinashe Farm",
+#     "description": "Dry, clean, export grade"
+#   }'
+#
+# Quick test browse:
+# curl "https://mdumeni-api.onrender.com/marketplace/listings?type=selling&province=Mashonaland+East"

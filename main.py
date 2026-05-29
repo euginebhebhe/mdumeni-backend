@@ -45,7 +45,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime, date, timedelta
-
+from routers.marketplace import router as marketplace_router
+app.include_router(marketplace_router)
 from db   import get_db
 from auth import hash_pin, verify_pin, create_token, verify_token, normalize_phone
 
