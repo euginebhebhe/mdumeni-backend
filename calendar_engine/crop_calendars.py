@@ -838,4 +838,160 @@ CALENDARS = {
                    basal_fert="Compound C", basal_rate=250,
                    td1_day=28, td1_fert="LAN", td1_rate=150,
                    harvest_note="Harvest chillies at green stage for fresh market, or fully red/ripe for drying. Pick every 3–5 days to encourage continued fruiting."),
+
+    # ── CROP_031–CROP_060: Extended crop set ──────────────────────────────────
+
+    "CROP_031": _generic_calendar("CROP_031", "Finger millet (Zviyo)", 105,
+                   basal_fert="Compound S", basal_rate=100,
+                   td1_day=30, td1_fert="Ammonium Nitrate", td1_rate=50,
+                   harvest_note="Harvest finger millet when seed heads turn brown and seeds are hard. Cut heads and dry on tarpaulin in sun for 3–5 days. Thresh by beating sheaves. Store in hermetic bags — resists weevils far better than maize grain."),
+
+    "CROP_032": _generic_calendar("CROP_032", "Bambara groundnut (Nyimo)", 150,
+                   basal_fert="Single Superphosphate", basal_rate=150,
+                   td1_day=45, td1_fert="Single Superphosphate", td1_rate=50,
+                   harvest_note="Harvest nyimo when leaves yellow and pods rattle when shaken. Uproot whole plant. Dry in sheaves for 1–2 weeks. Pod manually or by driving over sheaves. Excellent storage life — up to 2 years in cool dry conditions."),
+
+    "CROP_033": _generic_calendar("CROP_033", "Pigeon peas", 150,
+                   basal_fert="Single Superphosphate", basal_rate=200,
+                   td1_day=60, td1_fert="Single Superphosphate", td1_rate=80,
+                   harvest_note="Harvest pigeon peas as pods turn yellow-brown. Pick continuously every 5–7 days — multiple harvests increase total yield. Dry thoroughly before storage. Nitrogen fixed by root nodules benefits the following maize crop."),
+
+    "CROP_034": _generic_calendar("CROP_034", "Lablab", 120,
+                   basal_fert="Single Superphosphate", basal_rate=150,
+                   td1_day=40, td1_fert="Single Superphosphate", td1_rate=60,
+                   harvest_note="Harvest lablab pods when plump and green for fresh eating, or leave to dry fully on plant for dry seed. Incorporate crop residues into soil for green manure — approximately 80–100 kg N/ha benefit to following crop."),
+
+    "CROP_035": _generic_calendar("CROP_035", "Green peas", 75,
+                   basal_fert="Compound C", basal_rate=200,
+                   td1_day=28, td1_fert="Ammonium Nitrate", td1_rate=50,
+                   harvest_note="Harvest green peas when pods are plump and seeds well formed but still tender. Test by squeezing — seeds should give slightly. Pick every 2–3 days. Rapid cooling after harvest critical for market quality."),
+
+    "CROP_036": _generic_calendar("CROP_036", "Okra (Derere)", 60,
+                   basal_fert="Compound C", basal_rate=200,
+                   td1_day=25, td1_fert="LAN", td1_rate=100,
+                   harvest_note="Harvest okra pods every 2–3 days when 7–10 cm long and still tender. Over-mature pods become tough and fibrous quickly. Use gloves — some varieties cause skin irritation. Sell fresh or dry thin-sliced in sun for storage."),
+
+    "CROP_037": _generic_calendar("CROP_037", "Covo (Swiss chard)", 50,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=21, td1_fert="LAN", td1_rate=150,
+                   harvest_note="Harvest covo by cutting outer leaves when 20–25 cm long. Leave inner growing tip intact — plant continues producing for 3–4 months. Wash and bundle for market. Highest demand early morning. Grows almost year-round with irrigation."),
+
+    "CROP_038": _generic_calendar("CROP_038", "Spinach", 50,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=21, td1_fert="LAN", td1_rate=120,
+                   harvest_note="Harvest spinach leaves when 15–20 cm long. Cut outer leaves — do not uproot. Multiple harvests over 6–8 weeks per planting. Bolts to seed in heat — plant in cool season. Wash, bundle and keep cool to extend shelf life."),
+
+    "CROP_039": _generic_calendar("CROP_039", "Carrots", 80,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=35, td1_fert="Potassium Chloride", td1_rate=100,
+                   harvest_note="Harvest carrots when shoulders are 2–3 cm diameter. Pull test one first. Loosen soil with fork before pulling to avoid breakage. Trim tops to 2 cm. Do not wash before storage — store in cool dry place. Sells 2–4x better washed and bunched at market."),
+
+    "CROP_040": _generic_calendar("CROP_040", "Beetroot", 65,
+                   basal_fert="Compound C", basal_rate=250,
+                   td1_day=30, td1_fert="LAN", td1_rate=100,
+                   harvest_note="Harvest beetroot when roots are 5–8 cm diameter. Larger roots become woody. Twist off tops leaving 3 cm stem — this prevents bleeding. Both roots and leaves are edible and marketable. Stores well in cool conditions for 2–3 months."),
+
+    "CROP_041": _generic_calendar("CROP_041", "Cucumber", 60,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=21, td1_fert="LAN", td1_rate=150,
+                   harvest_note="Harvest cucumbers every 2–3 days when 15–20 cm long. Never allow to over-mature on vine — diverts energy from new fruit. Cut with secateurs, do not pull. Keep well-watered for straight fruit — moisture stress causes bitter flavour."),
+
+    "CROP_042": _generic_calendar("CROP_042", "Eggplant (Brinjal)", 80,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=30, td1_fert="LAN", td1_rate=150,
+                   harvest_note="Harvest brinjal when skin is firm and shiny. Press with thumb — skin should spring back. Dull skin and seeds darkening inside means over-mature. Cut with 2 cm stem attached. Harvest every 5–7 days. High temperature tolerance makes it excellent for dry-season production with irrigation."),
+
+    "CROP_043": _generic_calendar("CROP_043", "Green beans", 60,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=28, td1_fert="LAN", td1_rate=100,
+                   harvest_note="Harvest green beans when pods snap crisply and seeds are barely visible. Export market requires pods 8–12 cm, straight, no blemishes. Pick every 2–3 days — critical for export quality. Cool immediately after picking. Supermarkets and Mbare Musika pay premium for pre-graded bundles."),
+
+    "CROP_044": _generic_calendar("CROP_044", "Lettuce", 50,
+                   basal_fert="Compound C", basal_rate=250,
+                   td1_day=21, td1_fert="LAN", td1_rate=100,
+                   harvest_note="Harvest heading lettuce when heads are firm and full. Cut at base. Harvest leaf lettuce by removing outer leaves, leaving growing point. Wash and refrigerate immediately. Wilts rapidly in heat — harvest in early morning and get to market fast."),
+
+    "CROP_045": _generic_calendar("CROP_045", "Sweet corn", 70,
+                   basal_fert="Compound D", basal_rate=200,
+                   td1_day=28, td1_fert="Ammonium Nitrate", td1_rate=150,
+                   harvest_note="Harvest sweet corn when silk turns dark brown and kernels spurt milky juice when pressed. Test by pressing thumbnail into kernel — cloudy juice means ready. Window is 3–5 days — time harvest carefully. Sell same day for best sweetness. Roadside and urban market prices often higher than supermarkets."),
+
+    # ── Perennial / tree crops — calendar tracks annual maintenance cycle ─────
+    # For perennial crops the calendar represents one annual growth/harvest cycle
+    # after establishment. total_days = 365 (one full year of management).
+
+    "CROP_046": _generic_calendar("CROP_046", "Citrus (Orange)", 365,
+                   basal_fert="Compound C", basal_rate=200,
+                   td1_day=60, td1_fert="LAN", td1_rate=150,
+                   harvest_note="Harvest oranges when Brix (sugar content) exceeds 9% and colour is fully developed for the variety. Do not rely on colour alone — Valencia stays green even when ripe. Clip, do not pull. Handle carefully — skin bruising leads to rot. Marketing: sell directly to Innscor, Cairns, or through HPCZ for export."),
+
+    "CROP_047": _generic_calendar("CROP_047", "Guava", 365,
+                   basal_fert="Compound C", basal_rate=150,
+                   td1_day=90, td1_fert="LAN", td1_rate=100,
+                   harvest_note="Harvest guava when fruit begins to soften slightly and skin colour changes to yellow-cream. Highly perishable — sell within 2–3 days of harvest. Process immediately into juice, jam or dried slices for longer shelf life and higher value. Local guava jam sells well at rural growth points."),
+
+    "CROP_048": _generic_calendar("CROP_048", "Passion fruit", 365,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=60, td1_fert="LAN", td1_rate=150,
+                   harvest_note="Harvest passion fruit when it falls naturally from the vine — do not pick early. Fallen fruit is fully ripe. Collect daily. Wrinkled skin indicates prime ripeness for eating; smooth skin is correct for export market. High-value crop — Harare hotels and juice processors pay premium prices."),
+
+    "CROP_049": _generic_calendar("CROP_049", "Lemon", 365,
+                   basal_fert="Compound C", basal_rate=200,
+                   td1_day=60, td1_fert="LAN", td1_rate=120,
+                   harvest_note="Harvest lemons when full-sized and skin transitions from green to pale yellow. Do not wait for full yellow — over-ripe lemons have lower juice content. Clip with stem. Strong year-round demand at urban markets — price premium in dry season. Juice processing adds significant value."),
+
+    "CROP_050": _generic_calendar("CROP_050", "Coffee (Arabica)", 365,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=90, td1_fert="Ammonium Nitrate", td1_rate=200,
+                   harvest_note="Harvest coffee cherries when fully red and firm — selective hand picking only. Never strip. Multiple passes needed per tree as cherries ripen unevenly. Process within 24 hours. Wet process (pulp, ferment 36–48 hours, wash, dry on raised beds 2–4 weeks) produces Zimbabwe AA premium grade. Contact Chipinge Coffee Growers Association for current buyer prices."),
+
+    "CROP_051": _generic_calendar("CROP_051", "Macadamia", 365,
+                   basal_fert="Compound C", basal_rate=250,
+                   td1_day=90, td1_fert="Ammonium Nitrate", td1_rate=150,
+                   harvest_note="Harvest macadamia nuts when husks split and nuts fall naturally. Collect from ground daily in nets — do not allow nuts to lie more than 3 days. De-husk within 24 hours. Dry in-shell to below 1.5% moisture. Crack and grade kernels: style 0 and 1 fetch highest export price. Contact Zimbabwe Macadamia Growers Association for buyers."),
+
+    "CROP_052": _generic_calendar("CROP_052", "Tea", 365,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=90, td1_fert="Ammonium Sulphate", td1_rate=200,
+                   harvest_note="Harvest tea by plucking two leaves and a bud (fine plucking) every 7–10 days. Never pluck coarser — quality falls. Deliver fresh leaf to factory within 4 hours — wilting reduces quality. Tanganda Tea and other factories operate outgrower collection in Honde Valley. Factory schedule for collection times before planting blocks."),
+
+    "CROP_053": _generic_calendar("CROP_053", "Moringa", 60,
+                   basal_fert="Compound C", basal_rate=100,
+                   td1_day=45, td1_fert="LAN", td1_rate=50,
+                   harvest_note="Harvest moringa leaves when shoots are 30–40 cm long. Cut back hard every 6–8 weeks to maintain bushy productive plant. Dry leaves in shade (not direct sun — preserves nutrients) for 1–2 days. Grind to powder for powder sales. Fresh leaves sell at markets and clinics as a nutritional supplement. Moringa powder fetches premium prices in urban health food markets."),
+
+    "CROP_054": _generic_calendar("CROP_054", "Castor bean", 140,
+                   basal_fert="Compound S", basal_rate=150,
+                   td1_day=35, td1_fert="Ammonium Nitrate", td1_rate=75,
+                   harvest_note="Harvest castor beans as seed capsules turn brown but before they split and shatter. Cut racemes (seed heads) carefully — capsules are explosive when fully dry. Dry cut racemes on tarpaulin. Thresh by walking over or beating. Remove hulls. Oil processors buy seed in bulk — confirm buyer before planting. NOTE: Seeds are toxic — keep from children and livestock."),
+
+    "CROP_055": _generic_calendar("CROP_055", "Safflower", 105,
+                   basal_fert="Compound S", basal_rate=100,
+                   td1_day=30, td1_fert="Ammonium Nitrate", td1_rate=50,
+                   harvest_note="Harvest safflower when capitula (flower heads) are fully dry and brown. Cut heads and thresh on tarpaulin. Winnow to clean. Oil content 30–35%. Confirm oil processor buyer before planting — limited processing capacity in Zimbabwe currently. Petals can be harvested fresh for natural food colouring — higher value market."),
+
+    "CROP_056": _generic_calendar("CROP_056", "Ginger", 240,
+                   basal_fert="Compound C", basal_rate=300,
+                   td1_day=45, td1_fert="Potassium Chloride", td1_rate=150,
+                   harvest_note="Harvest fresh ginger at 5–7 months for tender young rhizomes (higher price). Harvest dry ginger at 8–9 months when tops die back fully — higher fibre, stronger flavour, better for processing. Dig carefully to avoid cuts. Wash and dry well. Harare and Bulawayo markets pay premium for fresh ginger. Export potential through Horticulture Promotion Council of Zimbabwe."),
+
+    "CROP_057": _generic_calendar("CROP_057", "Jatropha", 365,
+                   basal_fert="Compound S", basal_rate=100,
+                   td1_day=90, td1_fert="Ammonium Nitrate", td1_rate=60,
+                   harvest_note="Harvest jatropha seeds from year 2 onwards. Pick when capsules turn yellow — before they split. Dry 3–5 days then shell. Oil content 35–40%. Press oil with mechanical press for biodiesel, soap, or lamp fuel. NOTE: All parts of jatropha are toxic — wear gloves when handling seeds and fruits. Seeds must not be eaten."),
+
+    "CROP_058": _generic_calendar("CROP_058", "Amaranth (Mowa)", 40,
+                   basal_fert="Compound C", basal_rate=150,
+                   td1_day=21, td1_fert="LAN", td1_rate=75,
+                   harvest_note="Harvest amaranth leaves continuously from 3 weeks after planting. Remove entire plant at 6–8 weeks for fresh market, or allow seed heads to fully mature for grain (12–14 weeks). Grain amaranth: harvest when seed heads are dry and seeds fall easily when rubbed. High nutritional value — market as nutritious traditional vegetable or superfood grain in urban health markets."),
+
+    "CROP_059": _generic_calendar("CROP_059", "Lima bean", 130,
+                   basal_fert="Single Superphosphate", basal_rate=150,
+                   td1_day=40, td1_fert="Single Superphosphate", td1_rate=60,
+                   harvest_note="Harvest lima beans as green pods for fresh market (2–3 pickings) or allow to dry fully on plant for dry seed (one harvest). Green beans sell at premium. Dry well before storage — high moisture causes mould. Good nitrogen fixer — crop residues benefit soil."),
+
+    "CROP_060": _generic_calendar("CROP_060", "Coriander", 45,
+                   basal_fert="Compound C", basal_rate=200,
+                   td1_day=21, td1_fert="LAN", td1_rate=75,
+                   harvest_note="Harvest coriander leaves from 4 weeks by cutting stems 2 cm above soil — plant regrows. Harvest seeds when 75% of seeds on umbel turn brown. Cut whole plant and dry in paper bag — seeds shatter easily. Bundle fresh leaves for Harare supermarkets, Indian grocery shops, and upmarket restaurants — consistent premium demand."),
 }

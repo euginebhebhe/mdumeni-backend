@@ -33,7 +33,50 @@ PESTS = [
   {"id":"PEST_027","common_name":"Avocado mite complex","scientific_name":"Oligonychus perseae","type":"mite","affects":["CROP_024"],"symptoms":["Brown necrotic patches on upper leaf surface","Fine webbing on leaf undersides","Early leaf drop"],"severity":"medium","economic_threshold":"Treat when more than 20% leaf area shows necrosis","season_risk":[7,8,9,10],"scouting_method":"Check leaf undersides of 20 leaves with hand lens.","treatments":[{"type":"chemical","product":"Hexythiazox (Nissorun 10 WP)","rate":"400 g/ha","timing":"Apply at first sign of colony formation."}],"prevention":["Adequate irrigation","Avoid overhead irrigation"]},
   {"id":"PEST_028","common_name":"Banana weevil","scientific_name":"Cosmopolites sordidus","type":"insect","affects":["CROP_025"],"symptoms":["Tunnels in the corm","Yellowing and toppling of plants","White grubs in corm when cut","Stunted sucker production"],"severity":"critical","economic_threshold":"More than 5 weevils per corm trap per week","season_risk":[1,2,3,4,5,6,7,8,9,10,11,12],"scouting_method":"Use split pseudostem traps. Count weevils every 2 weeks.","treatments":[{"type":"chemical","product":"Chlorpyrifos (Dursban 48 EC) soil application","rate":"5 mL per planting hole","timing":"Apply at planting and 6-month intervals."},{"type":"organic","product":"Beauveria bassiana","rate":"5e13 spores/ha","timing":"Apply as soil drench around corm.","notes":"Biological control. Best in cool, moist conditions."}],"prevention":["Certified disease-free planting material","Remove old pseudostems promptly"]},
   {"id":"PEST_029","common_name":"Sugarcane borer","scientific_name":"Eldana saccharina","type":"insect","affects":["CROP_026"],"symptoms":["Dead heart in young ratoons","Bored internodes — hollow when cut","Frass at entry point","Reduced sugar content"],"severity":"critical","economic_threshold":"Treat when more than 10% of stalks show boring damage","season_risk":[10,11,12,1,2],"scouting_method":"Check 50 random stalks per hectare. Cut open suspect stalks.","treatments":[{"type":"chemical","product":"Chlorpyrifos (Dursban 48 EC) stalk application","rate":"1 L/ha","timing":"Apply when moths are active."},{"type":"organic","product":"Cotesia flavipes (parasitic wasp) mass release","rate":"10,000 wasps per hectare","timing":"Release at egg-hatch period.","notes":"Classical biocontrol used in commercial cane."}],"prevention":["Harvest ratoons on time","Burn or shred trash after harvest"]},
-  {"id":"PEST_030","common_name":"Sesame gall midge","scientific_name":"Asphondylia sesami","type":"insect","affects":["CROP_027"],"symptoms":["Galled (swollen) seed capsules","Premature capsule drop","Distorted stem tips"],"severity":"medium","economic_threshold":"Treat when more than 15% of capsules are galled","season_risk":[12,1,2],"scouting_method":"Check 20 plants. Examine developing capsules for swelling.","treatments":[{"type":"chemical","product":"Dimethoate 40% EC","rate":"250 mL/ha","timing":"Apply at flowering when midges laying eggs."}],"prevention":["Early planting","Destroy crop residues"]}
+  {"id":"PEST_030","common_name":"Sesame gall midge","scientific_name":"Asphondylia sesami","type":"insect","affects":["CROP_027"],"symptoms":["Galled (swollen) seed capsules","Premature capsule drop","Distorted stem tips"],"severity":"medium","economic_threshold":"Treat when more than 15% of capsules are galled","season_risk":[12,1,2],"scouting_method":"Check 20 plants. Examine developing capsules for swelling.","treatments":[{"type":"chemical","product":"Dimethoate 40% EC","rate":"250 mL/ha","timing":"Apply at flowering when midges laying eggs."}],"prevention":["Early planting","Destroy crop residues"]},
+
+  {"id":"PEST_031","common_name":"Grain weevil (storage)","scientific_name":"Sitophilus granarius","type":"insect",
+   "affects":["CROP_031","CROP_001","CROP_002","CROP_004"],
+   "symptoms":["Round exit holes in stored grain","Fine flour-like dust in bags","Grain hollowed out inside","Musty smell in storage"],"severity":"high","economic_threshold":"Any infestation — treat immediately","season_risk":[1,2,3,4,5,6,7,8,9,10,11,12],
+   "scouting_method":"Sieve grain sample — look for live weevils and exit holes. Probe for hotspots.",
+   "treatments":[{"type":"chemical","product":"Actellic 50 EC (Pirimiphos-methyl)","rate":"20 mL per tonne","timing":"At storage — mix through grain before bagging."},{"type":"organic","product":"Diatomaceous earth","rate":"1 kg per 100 kg grain","timing":"Mix through dry grain at storage."}],
+   "prevention":["Dry grain below 12% moisture","Use hermetic PICS bags","Clean storage before use","Store bags on wooden pallets"]},
+
+  {"id":"PEST_032","common_name":"Aphids on vegetables","scientific_name":"Myzus persicae / Aphis gossypii","type":"insect",
+   "affects":["CROP_037","CROP_038","CROP_039","CROP_040","CROP_041","CROP_042","CROP_043","CROP_044","CROP_045","CROP_053","CROP_058","CROP_060"],
+   "symptoms":["Colonies on leaf undersides","Yellowing and curling of young leaves","Sticky honeydew — sooty mould follows","Stunted plants and distorted growing tips"],"severity":"medium","economic_threshold":"Treat when >20% of plants show aphid colonies","season_risk":[5,6,7,8,9,10],
+   "scouting_method":"Check leaf undersides and growing tips weekly. Yellow sticky traps show early arrival.",
+   "treatments":[{"type":"chemical","product":"Imidacloprid (Confidor 200 SL)","rate":"150 mL/ha","timing":"At first colony detection. Not on open flowers."},{"type":"organic","product":"Neem extract (Azadirachtin 0.03%)","rate":"3–5 L/ha","timing":"Every 5–7 days. Spray undersides."},{"type":"organic","product":"Insecticidal soap","rate":"5 mL/L water","timing":"Direct spray on colonies."}],
+   "prevention":["Introduce ladybirds and lacewings","Avoid excess nitrogen","Yellow sticky trap monitoring"]},
+
+  {"id":"PEST_033","common_name":"Leaf miner","scientific_name":"Liriomyza trifolii","type":"insect",
+   "affects":["CROP_037","CROP_038","CROP_044","CROP_013","CROP_041","CROP_042"],
+   "symptoms":["White winding tunnels (mines) on leaf surface","Tiny maggots inside mines","Yellow stippling from female feeding punctures","Premature leaf drop in severe cases"],"severity":"medium","economic_threshold":"Treat when mines on >15% of leaves","season_risk":[5,6,7,8,9,10],
+   "scouting_method":"Hold leaf to light — mines appear as white channels. Count affected leaves per 10 sampled.",
+   "treatments":[{"type":"chemical","product":"Cyromazine (Trigard 75 WP)","rate":"200 g/ha","timing":"At first mine detection."},{"type":"organic","product":"Spinosad (Tracer)","rate":"120 mL/ha","timing":"Evening application — safe for beneficials."}],
+   "prevention":["Destroy crop debris immediately","Yellow sticky traps","Avoid excess nitrogen"]},
+
+  {"id":"PEST_034","common_name":"Fruit fly","scientific_name":"Ceratitis capitata / C. rosa","type":"insect",
+   "affects":["CROP_046","CROP_047","CROP_048","CROP_049","CROP_022","CROP_023"],
+   "symptoms":["Sting punctures on fruit skin","Premature fruit drop","Maggots inside ripe fruit","Rotting from inside without obvious external damage"],"severity":"critical","economic_threshold":"Any fruit sting is commercial loss","season_risk":[11,12,1,2,3,4],
+   "scouting_method":"Hang food-based lure traps in canopy — one per 4 trees. Count weekly. Check fallen fruit for maggots.",
+   "treatments":[{"type":"chemical","product":"Protein bait spray (GF-120 or Malathion + protein)","rate":"Spot spray 1 in 10 trees, rotating","timing":"Begin at fruit colouring. Repeat weekly."},{"type":"organic","product":"Exclusion netting over fruit clusters","rate":"Full coverage","timing":"From fruit set to harvest."}],
+   "prevention":["Collect and destroy fallen fruit daily","Remove overripe fruit from tree","Destroy crop debris after harvest"]},
+
+  {"id":"PEST_035","common_name":"Coffee berry borer","scientific_name":"Hypothenemus hampei","type":"insect",
+   "affects":["CROP_050"],
+   "symptoms":["Tiny bore hole at blossom end of berry","Berry shrivels or drops early","Grubs and frass inside berry","Significant yield loss in infested blocks"],"severity":"critical","economic_threshold":"Economic impact at 2–3% berry infestation","season_risk":[11,12,1,2,3,4],
+   "scouting_method":"Sample 100 berries per block. Dissect for bore holes. Use BROCAP traps baited with alcohol.",
+   "treatments":[{"type":"chemical","product":"Chlorpyrifos","rate":"Per label","timing":"At first bore detection."},{"type":"organic","product":"Beauveria bassiana (Bb)","rate":"3 kg/ha","timing":"Apply in humid conditions. Evening application."}],
+   "prevention":["Strip all berries at harvest — leave none on tree or ground","Release Phymastichus coffea parasitic wasp"]},
+
+  {"id":"PEST_036","common_name":"Tea mosquito bug","scientific_name":"Helopeltis spp.","type":"insect",
+   "affects":["CROP_052","CROP_051","CROP_050"],
+   "symptoms":["Brown necrotic spots on young shoots","Shoot die-back — flush destroyed","Canker-like lesions on stems","Flower and fruit damage"],"severity":"high","economic_threshold":"Treat when average 5 bugs per 100 shoots","season_risk":[10,11,12,1,2,3],
+   "scouting_method":"Shake shoots over white tray — count falling bugs. Inspect young flush for necrotic spots.",
+   "treatments":[{"type":"chemical","product":"Imidacloprid (Confidor)","rate":"Per label","timing":"At flush when populations exceed threshold."},{"type":"organic","product":"Neem oil spray","rate":"3 L/ha","timing":"Every 7–10 days at peak periods."}],
+   "prevention":["Prune shade trees to reduce humidity","Remove weed hosts","Conserve predatory bugs (Orius spp.)"]}
+
 ]
 
 DISEASES = [
@@ -69,7 +112,58 @@ DISEASES = [
   {"id":"DIS_030","common_name":"Sesame phyllody","scientific_name":"Sesame phytoplasma","pathogen_type":"viral","affects":["CROP_027"],"symptoms":["Flowers transformed into leaf-like structures (phyllody)","Stunted growth and greening of petals","No capsule formation on affected branches"],"severity":"medium","favourable_conditions":"Spread by leafhoppers. Worse in late-planted crops.","scouting_method":"Inspect flowers from flowering stage. Green leaf-like flowers confirm phyllody.","treatments":[{"type":"cultural","product":"Remove infected plants","rate":"N/A","timing":"As soon as symptoms appear."}],"prevention":["Control leafhopper vectors","Early planting"]},
   {"id":"DIS_031","common_name":"Pumpkin powdery mildew","scientific_name":"Erysiphe cichoracearum","pathogen_type":"fungal","affects":["CROP_028"],"symptoms":["White powdery patches on both leaf surfaces","Rapid spread in dry warm conditions","Early leaf senescence and reduced fruit fill"],"severity":"medium","favourable_conditions":"Warm dry conditions (20–28°C). Common in late season.","scouting_method":"Check leaf surfaces from 4 weeks after transplanting.","treatments":[{"type":"chemical","product":"Wettable sulphur (Thiovit Jet 80 WG)","rate":"3 kg/ha","timing":"Apply at first sign. Repeat every 10 days."}],"prevention":["Resistant varieties","Adequate plant spacing"]},
   {"id":"DIS_032","common_name":"Garlic white rot","scientific_name":"Sclerotium cepivorum","pathogen_type":"fungal","affects":["CROP_029"],"symptoms":["Yellowing and death of leaves from tips downward","White cottony mycelium at bulb base","Small black sclerotia (2 mm) on rotted bulb","Soft rotted bulbs at harvest"],"severity":"critical","favourable_conditions":"Cool soils (10–20°C). Soil-borne — sclerotia survive 20+ years.","scouting_method":"Pull suspect plants. Examine bulb base for white mycelium and black sclerotia.","treatments":[{"type":"chemical","product":"Tebuconazole (Folicur 250 EW) soil drench","rate":"1 L/ha","timing":"Apply at planting in known infested fields."}],"prevention":["Do not plant alliums in fields with white rot history","Disease-free planting material","No crop rotation breaks the cycle"]},
-  {"id":"DIS_033","common_name":"Pepper Phytophthora blight","scientific_name":"Phytophthora capsici","pathogen_type":"fungal","affects":["CROP_030"],"symptoms":["Water-soaked lesions on stem at soil level — rapid girdling","Plant wilts suddenly and collapses (crown rot)","Water-soaked rotten fruit","White sporulation on infected tissue in wet conditions"],"severity":"critical","favourable_conditions":"Waterlogged soils, heavy rainfall, warm (25–30°C).","scouting_method":"Check base of plants for water-soaked lesions after heavy rain. Sudden wilting is diagnostic.","treatments":[{"type":"chemical","product":"Metalaxyl + Mancozeb (Ridomil Gold MZ) soil drench","rate":"3 kg/ha","timing":"Apply as soil drench at transplanting and after heavy rain."}],"prevention":["Raised beds for excellent drainage","Avoid waterlogging","Crop rotation minimum 3 years"]}
+  {"id":"DIS_033","common_name":"Pepper Phytophthora blight","scientific_name":"Phytophthora capsici","pathogen_type":"fungal","affects":["CROP_030"],"symptoms":["Water-soaked lesions on stem at soil level — rapid girdling","Plant wilts suddenly and collapses (crown rot)","Water-soaked rotten fruit","White sporulation on infected tissue in wet conditions"],"severity":"critical","favourable_conditions":"Waterlogged soils, heavy rainfall, warm (25–30°C).","scouting_method":"Check base of plants for water-soaked lesions after heavy rain. Sudden wilting is diagnostic.","treatments":[{"type":"chemical","product":"Metalaxyl + Mancozeb (Ridomil Gold MZ) soil drench","rate":"3 kg/ha","timing":"Apply as soil drench at transplanting and after heavy rain."}],"prevention":["Raised beds for excellent drainage","Avoid waterlogging","Crop rotation minimum 3 years"]},
+
+
+    # ── New diseases for extended crops ──────────────────────────────────────
+
+  {"id":"DIS_034","common_name":"Coffee leaf rust","scientific_name":"Hemileia vastatrix","pathogen_type":"fungal",
+   "affects":["CROP_050"],
+   "symptoms":["Yellow-orange powdery spots on lower leaf surface","Corresponding pale spots on upper surface","Severe defoliation — bare stems by season end","Reduced yield and plant vigour over years"],
+   "severity":"critical","favourable_conditions":"High humidity (>80%), temperatures 16–28°C, free water on leaves.",
+   "scouting_method":"Check undersides of 10 leaves from 10 plants per 0.5 ha. Assess % leaf area affected. Monitor humidity levels.",
+   "treatments":[
+     {"type":"chemical","product":"Copper hydroxide (Kocide 2000)","rate":"2.5 kg/ha in 600 L water","timing":"Protective — begin before conditions favour infection. Repeat every 21 days."},
+     {"type":"chemical","product":"Propiconazole (Tilt 250 EC)","rate":"500 mL/ha","timing":"At first sign. Systemic — gives 4–6 weeks control."}],
+   "prevention":["Plant resistant varieties (Catimor, Sarchimor)","Maintain adequate shade","Avoid over-cropping","Remove and destroy infected leaves"]},
+
+  {"id":"DIS_035","common_name":"Leaf spot of coriander","scientific_name":"Alternaria petroselini","pathogen_type":"fungal",
+   "affects":["CROP_060"],
+   "symptoms":["Small brown spots with yellow halo on leaves","Spots enlarge and coalesce — extensive leaf blight","Premature defoliation","Stem cankers in severe cases"],
+   "severity":"medium","favourable_conditions":"Wet foliage, cool temperatures 15–25°C, high humidity.",
+   "scouting_method":"Check 20 plants per bed for leaf spots. Assess severity. Look for wet weather correlation.",
+   "treatments":[
+     {"type":"chemical","product":"Mancozeb + Copper (Dithane M-45 tank mix)","rate":"2 kg/ha","timing":"At first spot, repeat every 10–14 days."},
+     {"type":"organic","product":"Copper oxychloride","rate":"1.5 kg/ha in 200 L water","timing":"Protective, spray after rain."}],
+   "prevention":["Avoid overhead irrigation — use drip","Good air circulation — correct spacing","Use certified disease-free seed","Remove crop debris"]},
+
+  {"id":"DIS_036","common_name":"Root rot of okra","scientific_name":"Pythium spp. / Rhizoctonia solani","pathogen_type":"fungal",
+   "affects":["CROP_036"],
+   "symptoms":["Seedling damping off — collapse at soil level","Yellowing of lower leaves","Wilting despite adequate soil moisture","Brown to black discolouration of roots"],
+   "severity":"high","favourable_conditions":"Waterlogged soil, poor drainage, temperatures 25–30°C.",
+   "scouting_method":"Check emerging seedlings daily for damping off. Pull wilting plants — check root colour. Observe drainage patterns across the plot.",
+   "treatments":[
+     {"type":"chemical","product":"Ridomil Gold (Metalaxyl 4% + Mancozeb 64%)","rate":"1 kg/100 L water — soil drench","timing":"At transplanting and early growth stages."}],
+   "prevention":["Well-drained beds — raised if soil heavy","Avoid overwatering","Rotate with cereals for 2+ seasons","Treat seed with fungicide before planting"]},
+
+  {"id":"DIS_037","common_name":"Banana bunchy top virus","scientific_name":"Banana bunchy top virus (BBTV)","pathogen_type":"viral",
+   "affects":["CROP_025"],
+   "symptoms":["Leaves short, narrow, and erect — bunched appearance at top","Leaf edges turn yellow then brown","Dark green streaks on leaf midrib and petiole","No flower or fruit production — plant dies"],
+   "severity":"critical","favourable_conditions":"Spread by banana aphid (Pentalonia nigronervosa). Warm temperatures 20–30°C.",
+   "scouting_method":"Walk the entire plantation monthly. Look for stunted bunchy appearance. No bunchy top plant ever recovers — remove immediately.",
+   "treatments":[
+     {"type":"chemical","product":"Imidacloprid (Confidor) for aphid vector control","rate":"150 mL/ha","timing":"Apply when aphids detected. Controls spread not the virus."}],
+   "prevention":["Use certified virus-free planting material","Rogue and destroy infected plants immediately — do not leave in field","Control aphid populations rigorously","Do not move plant material from infected areas"]},
+
+  {"id":"DIS_038","common_name":"Fusarium wilt of sweet potato","scientific_name":"Fusarium oxysporum f.sp. batatas","pathogen_type":"fungal",
+   "affects":["CROP_019"],
+   "symptoms":["Yellowing of lower leaves progressing upward","Vascular discolouration — brown staining in stem cross-section","Plant wilts progressively and dies","Roots shrunken and discoloured"],
+   "severity":"high","favourable_conditions":"Infected soil, wounds at planting, warm soil (25–30°C), poor drainage.",
+   "scouting_method":"Check plants showing early wilt — cross-section stem near base. Brown vascular tissue is diagnostic. Map affected areas.",
+   "treatments":[
+     {"type":"chemical","product":"No effective chemical cure once established — focus on prevention","rate":"N/A","timing":"N/A"}],
+   "prevention":["Use clean, disease-free vine cuttings only","Rotate with cereals or legumes for 3+ years","Avoid soil compaction and waterlogging","Plant resistant varieties where available"]},
+
 ]
 
 PEST_BY_ID    = {p["id"]: p for p in PESTS}

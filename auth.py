@@ -58,10 +58,3 @@ def normalize_phone(phone: str) -> str:
     elif not phone.startswith("+"):
         phone = "+263" + phone
     return phone
-
-
-    @app.get("/debug/secret", tags=["System"])
-    def debug_secret():
-        import os
-        secret = os.environ.get("JWT_SECRET", "NOT SET")
-        return {"secret_length": len(secret), "secret_prefix": secret[:8]}

@@ -1,6 +1,6 @@
 """
 MDUMENI — Crop Dataset
-All 30 Zimbabwean crops with full agronomic profiles.
+60 Zimbabwean crops with full agronomic profiles.
 
 Each crop record contains:
   - Identity: id, name, local names, type
@@ -1269,6 +1269,10 @@ CROPS = [
     },
 
 ]
+
+# Import and merge the extended crop dataset (CROP_031–CROP_060)
+from crop_engine.crop_dataset_extended import CROPS_EXTENDED
+CROPS = CROPS + CROPS_EXTENDED
 
 # Quick lookup by ID
 CROP_BY_ID = {c["id"]: c for c in CROPS}
