@@ -5,7 +5,8 @@ Provides GPS-accurate nearby-services search backed by the same province
 JSON files that are bundled in the mobile app.
 
 Endpoints:
-  POST /services/nearby   — nearest services to a GPS point
+  GET  /services/nearby   — nearest services to a GPS point via query params
+  POST /services/nearby   — nearest services to a GPS point via JSON body
   GET  /services/province — all services in a province (with optional type filter)
   GET  /services/district — AGRITEX office + services for a specific district
 
@@ -180,9 +181,9 @@ def services_nearby(req: NearbyRequest):
 
 @router.get("/nearby", response_model=list[ServiceResult])
 def services_nearby_get(
-    lat: float = Query(..., ge=-90, le=90),
-    lng: float = Query(..., ge=-180, le=180),
-    province: str = Query(..., min_length=1),
+    lat: Optional[float] = Query(default=None, ge=-90, le=90),
+    lng: Optional[float] = Query(default=None, ge=-180, le=180),
+    province: Optional[str] = Query(default=None, min_length=1),
     types: Optional[list[str]] = Query(default=None),
     crop_id: Optional[str] = None,
     radius_km: float = Query(default=100.0, ge=1, le=500),
@@ -192,6 +193,15 @@ def services_nearby_get(
     GET-compatible nearby-services endpoint for browser/frontend query requests.
     Reuses the POST implementation so filtering and validation stay identical.
     """
+    if lat is None or lng is None or province is None:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Missing required query parameters. Example: "
+                "/services/nearby?lat=-17.858&lng=31.044&province=Harare"
+            ),
+        )
+
     req = NearbyRequest(
         lat=lat,
         lng=lng,
