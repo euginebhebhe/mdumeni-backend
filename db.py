@@ -19,7 +19,7 @@ def get_db() -> Client:
         if not SUPABASE_SERVICE_KEY:
             raise RuntimeError(
                 "SUPABASE_SERVICE_KEY environment variable not set. "
-                "Add it in Render → Environment."
+                "Add it in Railway -> Variables."
             )
         _client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
     return _client

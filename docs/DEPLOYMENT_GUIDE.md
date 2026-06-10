@@ -1,25 +1,24 @@
 # MDUMENI Deployment Guide
 
-This guide covers deploying MDUMENI to production: backend on Render, database on Supabase, and mobile app on Google Play.
+This guide covers deploying MDUMENI to production: backend on Railway, database on Supabase, and mobile app on Google Play.
 
 ---
 
-## Backend Deployment (Render)
+## Backend Deployment (Railway)
 
 ### Initial setup
 
-1. Create a free account at [render.com](https://render.com)
+1. Create an account at [railway.com](https://railway.com)
 2. Connect your GitHub repository
-3. Create a new **Web Service** and select the `mdumeni` repository
+3. Create a new project from the `mdumeni` repository
 4. Configure:
    - **Root directory:** `backend/mdumeni-backend`
    - **Build command:** `pip install -r requirements.txt`
-   - **Start command:** `gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT`
-   - **Instance type:** Free (or Starter at $7/month to avoid sleep)
+   - **Start command:** `gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120`
 
-### Environment variables on Render
+### Environment variables on Railway
 
-Set these in the Render dashboard under Environment:
+Set these in the Railway dashboard under Variables:
 
 ```
 SUPABASE_URL        = https://your-project-id.supabase.co
@@ -37,28 +36,26 @@ backend/mdumeni-backend/data/provinces/province_bulawayo.json
 ... (all 10 provinces)
 ```
 
-Ensure this directory is **not** in `.gitignore`. Render serves the repository as-is — the files must be committed.
+Ensure this directory is **not** in `.gitignore`. Railway deploys the repository contents, so the files must be committed.
 
 ### Verifying deployment
 
 After deploy, check:
-- `https://mdumeni-api.onrender.com/health` → `{"status": "healthy"}`
-- `https://mdumeni-api.onrender.com/services/provinces` → list of 10 provinces
-- `https://mdumeni-api.onrender.com/docs` → Swagger UI
+- `https://mdumeni-api-production.up.railway.app/health` -> `{"status": "healthy"}`
+- `https://mdumeni-api-production.up.railway.app/services/provinces` -> list of 10 provinces
+- `https://mdumeni-api-production.up.railway.app/docs` -> Swagger UI
 
 ### Price scraper cron job
 
 Set up automated daily price updates:
-1. Render dashboard → your service → **Cron Jobs**
-2. Add cron job:
+1. Railway dashboard -> your service -> **Cron**
+2. Add a scheduled job:
    - **Command:** `python price_scraper.py`
    - **Schedule:** `0 4 * * *` (4am UTC = 6am Zimbabwe time)
 
-### Free tier limitations
+### Hosting plan limits
 
-The Render free tier **sleeps after 15 minutes** of inactivity. The first request after sleep takes 30–60 seconds. The mobile app handles this with timeouts and falls back to offline mode gracefully.
-
-To eliminate sleep: upgrade to Render Starter ($7/month). Strongly recommended before any public launch or pilot.
+Review Railway usage and plan limits before any public launch or pilot.
 
 ---
 
@@ -288,9 +285,9 @@ All data is encrypted in transit. Users can request deletion.
 
 ## Monitoring and Alerts
 
-### Render monitoring
+### Railway monitoring
 
-- Render provides basic metrics (CPU, memory, response times) in the dashboard
+- Railway provides service logs and usage metrics in the dashboard
 - Set up email alerts for service restarts
 
 ### Supabase monitoring
@@ -307,20 +304,20 @@ npm install @sentry/react-native
 
 ---
 
-## Upgrading the Render Instance
+## Upgrading the Railway Service
 
 When ready for the pilot (recommended at 50+ active users):
 
-1. Render dashboard → your service → **Change instance type**
-2. Select **Starter** ($7/month)
-3. This eliminates sleep and gives you 512MB RAM vs 256MB on free
+1. Railway dashboard -> your project -> service settings
+2. Review usage, resource limits, and plan options
+3. Upgrade before pilot traffic exceeds the current plan
 
 At 500+ active users, consider:
-- **Standard instance** ($25/month) for more RAM
+- A higher Railway plan for more backend capacity
 - **Supabase Pro** ($25/month) for higher database limits and daily backups
-- **Render PostgreSQL** as a secondary read replica
+- PostgreSQL read replica if database traffic requires it
 
-Total cost for a production-grade setup: approximately $50–75/month.
+Total cost for a production-grade setup depends on Railway and Supabase usage.
 
 ---
 
@@ -333,7 +330,7 @@ Total cost for a production-grade setup: approximately $50–75/month.
 - [ ] `marketplace.py` wired into `main.py`
 - [ ] Marketplace SQL tables created in Supabase
 - [ ] `marketplace-photos` storage bucket created
-- [ ] Price scraper cron job configured in Render
+- [ ] Price scraper cron job configured in Railway
 - [ ] Backend health check passing
 - [ ] `/services/provinces` returning all 10 provinces
 - [ ] Privacy Policy hosted at a public URL

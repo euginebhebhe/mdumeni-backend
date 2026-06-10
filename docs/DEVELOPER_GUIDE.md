@@ -272,13 +272,13 @@ npx expo start --android  # opens Android emulator
 
 ## Deployment
 
-### Backend (Render)
+### Backend (Railway)
 
 1. Push to the `main` branch on GitHub
-2. Render automatically deploys on push (connected to GitHub)
-3. Check deployment logs at `https://dashboard.render.com`
+2. Railway automatically deploys on push (connected to GitHub)
+3. Check deployment logs in the Railway dashboard
 
-**Render environment variables required:**
+**Railway environment variables required:**
 
 | Variable | Value source |
 |---|---|
@@ -287,7 +287,7 @@ npx expo start --android  # opens Android emulator
 | `JWT_SECRET` | Generate: `python3 -c "import secrets; print(secrets.token_hex(32))"` |
 | `GROQ_API_KEY` | https://console.groq.com |
 
-**Important:** The province JSON data files must be included in the repository and deployed to Render. They live at `backend/mdumeni-backend/data/provinces/`. Do not add this directory to `.gitignore`.
+**Important:** The province JSON data files must be included in the repository and deployed to Railway. They live at `backend/mdumeni-backend/data/provinces/`. Do not add this directory to `.gitignore`.
 
 ### Mobile app (APK sideload)
 

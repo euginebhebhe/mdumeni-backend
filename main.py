@@ -9,18 +9,14 @@ Single API that exposes all four intelligence engines + market intelligence:
   Engine 4 — Pest & Disease
   Engine 5 — Market Intelligence (prices, profit, alerts)
 
-<<<<<<< HEAD
-Base URL:   https://mdumeni-api.onrender.com
-Docs:       https://mdumeni-api.onrender.com/docs
-=======
 All endpoints follow the same pattern:
   - POST body with JSON payload
   - Validated input with clear error messages
   - Structured JSON response
   - Health check at /health
 
-Base URL:   http://mdumeni-api.onrender.com
-Docs:       http://mdumeni-api.onrender.com/docs  (Swagger UI — auto-generated)
+Base URL:   https://mdumeni-api-production.up.railway.app
+Docs:       https://mdumeni-api-production.up.railway.app/docs  (Swagger UI - auto-generated)
 
 Run:
     pip install fastapi uvicorn
@@ -32,7 +28,6 @@ Or production:
 Offline fallback:
     The Flask api.py in /crop_engine/ works without FastAPI if uvicorn
     is unavailable. This file is the production integration layer.
->>>>>>> 2b0ebb970cfb988e613c58929dfc8d132d385e0e
 """
 
 import sys
@@ -645,7 +640,7 @@ def admin_stats():
 async def ai_chat(req: ChatRequest):
     """
     Farmer question to Groq Llama 3.3 70B with full farm context + live market prices.
-    Requires GROQ_API_KEY in Render environment variables.
+    Requires GROQ_API_KEY in Railway environment variables.
     Free tier: 500,000 tokens/day.
     """
     import httpx
@@ -919,6 +914,6 @@ if __name__ == "__main__":
     print("\nMDUMENI Intelligence Engine API v2.0.0")
     print(f"Crops loaded: {len(CROPS)}")
     print("Market intelligence: enabled")
-    print("Starting on http://mdumeni-api.onrender.com")
-    print("Swagger docs: http://mdumeni-api.onrender.com/docs\n")
+    print("Starting on https://mdumeni-api-production.up.railway.app")
+    print("Swagger docs: https://mdumeni-api-production.up.railway.app/docs\n")
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

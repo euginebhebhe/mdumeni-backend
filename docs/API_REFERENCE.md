@@ -1,11 +1,11 @@
 # MDUMENI API Reference
 
-**Base URL:** `https://mdumeni-api.onrender.com`  
-**Interactive docs:** `https://mdumeni-api.onrender.com/docs`  
+**Base URL:** `https://mdumeni-api-production.up.railway.app`  
+**Interactive docs:** `https://mdumeni-api-production.up.railway.app/docs`  
 **Authentication:** Bearer JWT token (obtained from `/auth/login`)  
 **Content-Type:** `application/json`
 
-> **Note:** The Render free tier server sleeps after 15 minutes of inactivity. The first request after a sleep period may take 30–60 seconds. The mobile app handles this with 20-second timeouts and graceful fallback to offline mode.
+> **Note:** The backend is hosted on Railway. Review Railway plan limits before public launch or pilot use.
 
 ---
 

@@ -16,10 +16,10 @@
 #    - Public: true
 #    - File size limit: 5 MB
 #
-# 5. Optional: add SMS_API_KEY env var in Render dashboard
+# 5. Optional: add SMS_API_KEY env var in Railway dashboard
 #    when you integrate Econet/Netone bulk SMS
 #
-# 6. Deploy to Render — push to GitHub and it auto-deploys
+# 6. Deploy to Railway - push to GitHub and it auto-deploys
 #
 # ── ENDPOINTS AFTER DEPLOYMENT ──────────────────────────────
 #
@@ -37,10 +37,10 @@
 #
 # ── TEST ENDPOINTS ──────────────────────────────────────────
 #
-# Test in Swagger at: https://mdumeni-api.onrender.com/docs
+# Test in Swagger at: https://mdumeni-api-production.up.railway.app/docs
 #
 # Quick test create listing:
-# curl -X POST https://mdumeni-api.onrender.com/marketplace/listing \
+# curl -X POST https://mdumeni-api-production.up.railway.app/marketplace/listing \
 #   -H "Content-Type: application/json" \
 #   -d '{
 #     "type": "selling",
@@ -56,4 +56,4 @@
 #   }'
 #
 # Quick test browse:
-# curl "https://mdumeni-api.onrender.com/marketplace/listings?type=selling&province=Mashonaland+East"
+# curl "https://mdumeni-api-production.up.railway.app/marketplace/listings?type=selling&province=Mashonaland+East"

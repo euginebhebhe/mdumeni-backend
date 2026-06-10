@@ -1,14 +1,14 @@
 # MDUMENI Backend API
-**AI agronomist for Zimbabwe — deployed on Render (free)**
+**AI agronomist for Zimbabwe - deployed on Railway**
 
 This is the backend server for the MDUMENI mobile app.  
 It runs all 4 AI engines and exposes them via a REST API.
 
-Live docs once deployed: `https://mdumeni-api.onrender.com/docs`
+Live docs once deployed: `https://mdumeni-api-production.up.railway.app/docs`
 
 ---
 
-## Deploy to Render — step by step
+## Deploy to Railway - step by step
 
 ### Step 1 — Push this folder to GitHub
 
@@ -33,39 +33,35 @@ Paste and run them in your PowerShell. Your code is now on GitHub.
 
 ---
 
-### Step 2 — Create a Render account
+### Step 2 - Create a Railway account
 
-Go to **render.com** → click **Get Started for Free** → sign up with your GitHub account.  
-No credit card required.
+Go to **railway.com** and sign up with your GitHub account.
 
 ---
 
-### Step 3 — Deploy the API
+### Step 3 - Deploy the API
 
-1. In the Render dashboard, click **New** → **Web Service**
+1. In the Railway dashboard, click **New Project**
 2. Click **Connect a repository** → select `mdumeni-backend`
-3. Render auto-detects Python. Fill in these fields:
+3. Railway auto-detects Python with Nixpacks. Confirm these settings:
    - **Name:** `mdumeni-api`
-   - **Region:** Oregon (closest to Zimbabwe)
    - **Branch:** `main`
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120`
-   - **Instance Type:** Free
-4. Click **Create Web Service**
+4. Add the required environment variables in Railway
+5. Deploy the service
 
-Render builds and deploys in about 2 minutes.  
-You will see a green **Live** badge when it is done.
+Railway builds and deploys from the connected GitHub repository.
 
 ---
 
 ### Step 4 — Get your live URL
 
 Your API is live at:  
-`https://mdumeni-api.onrender.com`  
-(Render generates this URL automatically)
+`https://mdumeni-api-production.up.railway.app`
 
 Test it by visiting:  
-`https://mdumeni-api.onrender.com/health`
+`https://mdumeni-api-production.up.railway.app/health`
 
 You should see:
 ```json
@@ -73,7 +69,7 @@ You should see:
 ```
 
 Full interactive docs:  
-`https://mdumeni-api.onrender.com/docs`
+`https://mdumeni-api-production.up.railway.app/docs`
 
 ---
 
@@ -83,7 +79,7 @@ Open `mdumeni-app/src/services/api.ts` on your computer.
 Find this line:
 
 ```typescript
-const BASE_URL = 'https://mdumeni-api.onrender.com';
+const BASE_URL = 'https://mdumeni-api-production.up.railway.app';
 ```
 
 Save the file. The app running in Expo Go will automatically reload and now call the real AI engines.
@@ -109,9 +105,7 @@ Save the file. The app running in Expo Go will automatically reload and now call
 
 ## Important note about the free tier
 
-Render's free tier **spins down after 15 minutes of inactivity**.  
-The first request after spin-down takes 30–60 seconds to respond.  
-After that, all requests are fast.
+Railway hosts this API at the production URL above. Review your Railway plan limits before a public launch or pilot.
 
 For the demo and pilot this is fine.  
 When you get institutional customers, upgrade to the $7/month paid tier for always-on performance.
@@ -120,6 +114,6 @@ When you get institutional customers, upgrade to the $7/month paid tier for alwa
 
 ## Auto-deploy on every push
 
-Once connected to Render, every time you run `git push` from your computer,  
-Render automatically rebuilds and redeploys in about 90 seconds.  
+Once connected to Railway, every time you run `git push` from your computer,  
+Railway automatically rebuilds and redeploys.  
 No manual steps needed.

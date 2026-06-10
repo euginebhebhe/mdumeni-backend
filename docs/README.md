@@ -53,7 +53,7 @@ MDUMENI changes this by putting a knowledgeable agronomist in every farmer's poc
 | Runtime | Python 3.11 |
 | Database | Supabase (PostgreSQL) |
 | AI inference | Groq (Llama 3.3 70B) |
-| Hosting | Render (free tier) |
+| Hosting | Railway |
 | Auth | JWT (python-jose) |
 | HTTP client | httpx |
 
@@ -175,7 +175,7 @@ export GROQ_API_KEY=your_groq_key
 uvicorn main:app --reload
 ```
 
-### Environment Variables (Render)
+### Environment Variables (Railway)
 
 | Variable | Description |
 |---|---|
@@ -189,9 +189,9 @@ uvicorn main:app --reload
 
 ## API
 
-Base URL: `https://mdumeni-api.onrender.com`
+Base URL: `https://mdumeni-api-production.up.railway.app`
 
-Interactive docs: `https://mdumeni-api.onrender.com/docs`
+Interactive docs: `https://mdumeni-api-production.up.railway.app/docs`
 
 See [API Reference](docs/API_REFERENCE.md) for full documentation.
 

@@ -40,14 +40,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Community seed banks (Matabeleland North and South)
 
 #### Backend
-- FastAPI on Render with 28 endpoints across 8 functional areas
+- FastAPI on Railway with 28 endpoints across 8 functional areas
 - JWT authentication with bcrypt PIN hashing
 - Groq-powered AI chat (Llama 3.3 70B) with full conversation history continuity
 - 486-question offline chat guide interpolated with real farm context
 - Market intelligence: crop prices, input costs, profit calculator
 - ZimAgroMarket: listings, deals, price alerts, photo upload, SMS broadcast (pending carrier API)
 - Agricultural services API: GPS-sorted nearby services from province JSON files
-- Price scraper with Render cron job support
+- Price scraper with Railway cron job support
 
 #### Home screen
 - Real-time soil readings display (pH, moisture, temperature)
