@@ -23,7 +23,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/services", tags=["Agricultural Services"])
@@ -176,6 +176,32 @@ def services_nearby(req: NearbyRequest):
 
     results.sort(key=lambda x: x.distance_km)
     return results[:req.limit]
+
+
+@router.get("/nearby", response_model=list[ServiceResult])
+def services_nearby_get(
+    lat: float = Query(..., ge=-90, le=90),
+    lng: float = Query(..., ge=-180, le=180),
+    province: str = Query(..., min_length=1),
+    types: Optional[list[str]] = Query(default=None),
+    crop_id: Optional[str] = None,
+    radius_km: float = Query(default=100.0, ge=1, le=500),
+    limit: int = Query(default=15, ge=1, le=50),
+):
+    """
+    GET-compatible nearby-services endpoint for browser/frontend query requests.
+    Reuses the POST implementation so filtering and validation stay identical.
+    """
+    req = NearbyRequest(
+        lat=lat,
+        lng=lng,
+        province=province,
+        types=types,
+        crop_id=crop_id,
+        radius_km=radius_km,
+        limit=limit,
+    )
+    return services_nearby(req)
 
 
 @router.get("/province/{province_name}")

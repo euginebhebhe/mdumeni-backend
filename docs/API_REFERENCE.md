@@ -537,6 +537,16 @@ Get agricultural services near a GPS location, sorted by distance.
 }
 ```
 
+### GET /services/nearby
+Get agricultural services near a GPS location using query parameters.
+
+**Query params:** `lat`, `lng`, `province`, optional `types`, `crop_id`, `radius_km`, `limit`
+
+Example:
+```text
+/services/nearby?lat=-17.858&lng=31.044&province=Harare&types=agro_dealer&radius_km=50&limit=10
+```
+
 **Response:**
 ```json
 [
