@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDUMENI | AI-Powered Agronomy for Zimbabwe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1A5C2A;
+            --secondary: #EF9F27;
+            --accent: #237533;
+            --bg-light: #F4F7F5;
+            --white: #ffffff;
+            --text-main: #0F1A12;
+            --text-muted: #607868;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Hero Section */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--white);
+            padding: 80px 0 120px;
+            text-align: center;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+        }
+
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: var(--white);
+            border-radius: 28px; /* Adaptive icon squircle look */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .logo-img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+        }
+
+        h1 { font-size: 4rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 10px; }
+        h1 span { color: var(--secondary); }
+        .tagline { font-size: 1.4rem; opacity: 0.9; font-weight: 300; }
+
+        /* Main Content Grid */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            margin-top: -60px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+            h1 { font-size: 2.5rem; }
+        }
+
+        .card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        h2 { color: var(--primary); margin-bottom: 20px; font-size: 1.8rem; display: flex; align-items: center; gap: 10px; }
+
+        /* Description Section */
+        .description p { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 15px; }
+
+        /* Vision & Mission */
+        .vision-mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .vm-item { background: #f9fbf9; padding: 20px; border-radius: 16px; border-left: 4px solid var(--secondary); }
+        .vm-item h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+
+        /* Download Box */
+        .download-box {
+            text-align: center;
+            position: sticky;
+            top: 20px;
+        }
+
+        .btn-download {
+            display: block;
+            background: var(--primary);
+            color: var(--white);
+            padding: 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(26, 92, 42, 0.2);
+        }
+
+        .btn-download:hover { background: var(--accent); transform: translateY(-3px); }
+
+        .qr-wrapper {
+            background: #fff;
+            padding: 20px;
+            border-radius: 20px;
+            display: inline-block;
+            border: 1px solid #eee;
+        }
+
+        .qr-code { width: 220px; height: 220px; }
+
+        /* Contact Section */
+        .contact-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #0F1A12;
+            color: white;
+        }
+
+        .contact-info h4 { font-size: 1.2rem; color: var(--secondary); margin-bottom: 5px; }
+        .contact-info p { font-size: 0.9rem; opacity: 0.8; }
+        .social-links { margin-top: 10px; display: flex; gap: 15px; }
+        .social-links a { color: white; text-decoration: none; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; transition: 0.3s; }
+        .social-links a:hover { background: var(--secondary); border-color: var(--secondary); color: var(--text-main); }
+
+        footer {
+            text-align: center;
+            padding: 60px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #E8F5EC;
+            color: var(--primary);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge-new {
+            background: var(--secondary);
+            color: var(--text-main);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo-container">
+                <img src="/docs/icon.png" alt="MDUMENI Icon" class="logo-img" onerror="this.src='https://img.icons8.com/color/144/sprout.png'">
+            </div>
+            <h1>MDU<span>MENI</span></h1>
+            <p class="tagline">Your Digital Farm Advisor <span class="badge-new">V1.0</span></p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-layout">
+            <div class="content-side">
+                <!-- Description Section -->
+                <section class="card description">
+                    <h2>About MDUMENI</h2>
+                    <p>MDUMENI is a revolutionary AI-driven agronomist built specifically for the Zimbabwean landscape. It bridges the gap between high-end agricultural science and the smallholder farmer, providing expert-level guidance without the need for an active internet connection.</p>
+                    <p>By processing real-time soil data and regional ecological factors, MDUMENI offers localized intelligence that helps farmers maximize yields, reduce input waste, and navigate market fluctuations with confidence.</p>
+                    
+                    <div style="margin-top: 20px;">
+                        <span class="feature-tag">Offline AI</span>
+                        <span class="feature-tag">Soil Analysis</span>
+                        <span class="feature-tag">ZimAgroMarket</span>
+                        <span class="feature-tag">Pest Diagnosis</span>
+                        <span class="feature-tag">Financial Planning</span>
+                    </div>
+                </section>
+
+                <!-- Vision & Mission Section -->
+                <section class="card">
+                    <h2>Our Commitment</h2>
+                    <div class="vision-mission-grid">
+                        <div class="vm-item">
+                            <h3>Vision</h3>
+                            <p>To empower every Zimbabwean farmer with digital intelligence to achieve food security and national prosperity.</p>
+                        </div>
+                        <div class="vm-item">
+                            <h3>Mission</h3>
+                            <p>To democratize agronomic expertise through accessible, offline-first AI technology that honors local farming practices.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contact Card -->
+                <section class="card contact-card">
+                    <div class="contact-info">
+                        <p style="text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.6;">Lead Developer</p>
+                        <h4>Eugine Bhebhe</h4>
+                        <p>INTELLI-Farming · University of Zimbabwe</p>
+                        <p>Email: bhebheeugine@gmail.com</p>
+                        <p>Tel: +263 78 461 7009</p>
+                        <div class="social-links">
+                            <a href="https://www.linkedin.com/in/eugine-bhebhe-b170823a0" target="_blank">LinkedIn</a>
+                            <a href="mailto:bhebheeugine@gmail.com">Contact Directly</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="download-side">
+                <div class="card download-box">
+                    <a href="apk/release/Mdumeni.apk" class="btn-download">Download MDUMENI (.apk)</a>
+                    <p style="margin-bottom: 15px; font-weight: 600;">Scan to Install</p>
+                    <div class="qr-wrapper">
+                        <img class="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://mdumeni-api-production.up.railway.app/apk/release/Mdumeni.apk" alt="Download QR">
+                    </div>
+                    <p style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted);">Current Version: 1.0.0 (June 2026)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 MDUMENI Project · INTELLI-Farming · University of Zimbabwe</p>
+    </footer>
+</body>
+</html>

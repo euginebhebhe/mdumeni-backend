@@ -37,6 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime, date, timedelta
@@ -80,6 +81,15 @@ app.include_router(market_router)
 app.include_router(scraper_router)
 app.include_router(services_router)
 
+# ── Static file serving (for Landing Page and APK) ────────────────────────────
+
+# Path to your landing page index.html
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+_INDEX_PATH = os.path.join(_BASE_DIR, "index.html")
+
+app.mount("/apk", StaticFiles(directory=os.path.join(_BASE_DIR, "apk")), name="apk")
+app.mount("/docs", StaticFiles(directory=os.path.join(_BASE_DIR, "docs")), name="docs")
+
 # ══ Global error handlers ══════════════════════════════════════════════════════
 
 @app.exception_handler(ValueError)
@@ -108,6 +118,16 @@ async def startup_price_update():
             print(f"[MDUMENI] Prices are current for {date.today()}")
     except Exception as e:
         print(f"[MDUMENI] Startup price check error: {e}")
+
+# ══ Landing Page ══════════════════════════════════════════════════════════════
+
+@app.get("/", response_class=HTMLResponse, tags=["Web"])
+def landing_page():
+    """Serve the MDUMENI professional landing page."""
+    if not os.path.exists(_INDEX_PATH):
+        return HTMLResponse("<h1>MDUMENI API is live</h1><p>Landing page index.html not found.</p>")
+    with open(_INDEX_PATH, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
 
 # ══ In-memory sensor store ═════════════════════════════════════════════════════
 
