@@ -469,7 +469,7 @@ Rules:
 - When asked about selling: compare GMB price vs open market vs export buyer
 - When asked about inputs: mention cheapest supplier today
 - Keep answers under 130 words
-- If asked in Shona, reply in Shona
+- Always respond in English only, regardless of what language the user writes in
 - Be encouraging and respectful"""
 
 # ══ Sensor endpoints ═══════════════════════════════════════════════════════════
