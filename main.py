@@ -722,15 +722,14 @@ QUESTION: {req.question}"""
 
 @app.get("/debug/auth", tags=["System"])
 def debug_auth(authorization: str = Header(None)):
-    """Debug endpoint - tests JWT verification."""
-    secret = os.environ.get("JWT_SECRET", "NOT_SET")
+    """Diagnostic endpoint that does not disclose credentials or tokens."""
     if not authorization:
-        return {"error": "No Authorization header", "secret_prefix": secret[:8]}
+        return {"error": "No Authorization header"}
     if not authorization.startswith("Bearer "):
-        return {"error": "No Bearer prefix", "received": authorization[:20]}
+        return {"error": "No Bearer prefix"}
     token  = authorization.split(" ", 1)[1]
     result = verify_token(token)
-    return {"token_prefix": token[:20], "secret_prefix": secret[:8], "secret_length": len(secret), "verify_result": result, "is_valid": result is not None}
+    return {"is_valid": result is not None}
 
 @app.get("/health", tags=["System"])
 def health():

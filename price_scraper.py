@@ -9,13 +9,16 @@
 # Or call POST /market/admin/scrape to trigger manually from Railway
 
 import os
+from dotenv import load_dotenv
 import json
 import httpx
 import asyncio
 from datetime import date, timedelta
 from typing import Optional
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://fhvsoqphnytsbzipqjsb.supabase.co")
+load_dotenv()
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 

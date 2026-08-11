@@ -18,11 +18,13 @@ from typing import Optional, List
 from datetime import datetime, timedelta
 import uuid
 import os
+from dotenv import load_dotenv
 from supabase import create_client
 
 router = APIRouter(prefix="/marketplace", tags=["marketplace"])
 
 # ── Supabase client ────────────────────────────────────────
+load_dotenv()
 supabase = create_client(
     os.environ["SUPABASE_URL"],
     os.environ["SUPABASE_SERVICE_KEY"],

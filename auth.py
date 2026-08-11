@@ -1,9 +1,15 @@
 # mdumeni-backend/auth.py
 import os, hashlib, hmac, json, base64, time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def _secret() -> str:
-    """Read JWT_SECRET fresh each call — avoids module-load timing issues."""
-    return os.environ.get("JWT_SECRET", "mdumeni-2026-intelli-farming")
+    """Read the JWT signing secret fresh each call."""
+    secret = os.environ.get("JWT_SECRET")
+    if not secret:
+        raise RuntimeError("JWT_SECRET environment variable is not set.")
+    return secret
 
 def hash_pin(pin: str, phone: str) -> str:
     return hashlib.sha256(f"{phone}:{pin}:mdumeni-salt".encode()).hexdigest()
