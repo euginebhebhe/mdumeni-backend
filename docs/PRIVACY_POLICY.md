@@ -83,7 +83,7 @@ We use your information exclusively to:
 
 When you send a message in the AI Chat feature and you are connected to the internet, your question and your farm profile summary (region, active crop, soil readings) are sent to:
 
-- **Our server** (hosted on Railway) for processing
+- **Our server** (hosted on Cloudflare Workers) for processing
 - **Groq Inc.** (United States) — the AI inference provider
 
 Groq processes your message to generate an agricultural response. We send only the agronomic context necessary to answer your question. We do not send your name, phone number, or any personally identifying information to Groq.
@@ -185,7 +185,7 @@ MDUMENI integrates with the following third-party services:
 |---|---|---|
 | Supabase | Database and authentication | https://supabase.com/privacy |
 | Groq Inc. | AI language model inference | https://groq.com/privacy-policy/ |
-| Railway | Backend server hosting | https://railway.com/privacy |
+| Cloudflare Workers | Backend server hosting | https://www.cloudflare.com/privacypolicy/ |
 
 ---
 

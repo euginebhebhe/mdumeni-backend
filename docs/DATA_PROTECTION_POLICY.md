@@ -63,7 +63,7 @@ Data collected specifically for the pilot study is governed by an additional inf
 - Data is encrypted at rest by Supabase
 - All data in transit uses TLS 1.2 or higher
 - Row Level Security is enabled at the application layer via JWT validation
-- The Supabase service role key is stored only as a Railway environment variable - it is never exposed in client-side code or committed to the repository
+- The Supabase service role key is stored only as a Cloudflare Workers environment variable - it is never exposed in client-side code or committed to the repository
 
 ### 3.3 Third-party processors
 
@@ -71,7 +71,7 @@ Data collected specifically for the pilot study is governed by an additional inf
 |---|---|---|---|---|
 | Supabase | All server-side farmer data | Database hosting | USA | Supabase Terms constitute a DPA |
 | Groq Inc. | Question text + farm context summary | AI chat inference | USA | Groq Terms |
-| Railway | None (compute only, no data storage) | Backend hosting | Railway Terms |
+| Cloudflare Workers | None (compute only, no data storage) | Backend hosting | Cloudflare Terms |
 
 ### 3.4 Access controls
 

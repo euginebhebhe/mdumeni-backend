@@ -21,7 +21,7 @@ def get_db() -> Client:
         if not SUPABASE_SERVICE_KEY:
             raise RuntimeError(
                 "SUPABASE_SERVICE_KEY environment variable not set. "
-                "Add it in Railway -> Variables."
+                "Add it in your Cloudflare Workers environment variables."
             )
         _client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
     return _client

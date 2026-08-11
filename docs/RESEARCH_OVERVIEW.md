@@ -63,7 +63,7 @@ A token-intersection symptom matcher across 74 pest and disease records. The eng
 
 ### Backend architecture
 
-The backend (FastAPI/Python on Railway) mirrors all AI engine logic in Python, serving as the authoritative version for online use. This dual implementation ensures consistent recommendations across online and offline modes while enabling Python-based testing and validation of the agronomic logic.
+The backend (FastAPI/Python on Cloudflare Workers) mirrors all AI engine logic in Python, serving as the authoritative version for online use. This dual implementation ensures consistent recommendations across online and offline modes while enabling Python-based testing and validation of the agronomic logic.
 
 The backend additionally provides: Groq-powered natural language chat with full conversation continuity; live market price intelligence; ZimAgroMarket (peer-to-peer produce marketplace); and GPS-accurate agricultural services lookup via province-structured JSON data covering 247 agricultural service locations across all 10 Zimbabwe provinces.
 

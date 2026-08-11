@@ -1,11 +1,11 @@
 # MDUMENI API Reference
 
-**Base URL:** `https://mdumeni-api-production.up.railway.app`  
-**Interactive docs:** `https://mdumeni-api-production.up.railway.app/docs`  
+**Base URL:** `https://mdumeni-backend.eugineeuman.workers.dev`
+**Interactive docs:** `https://mdumeni-backend.eugineeuman.workers.dev/docs`
 **Authentication:** Bearer JWT token (obtained from `/auth/login`)  
 **Content-Type:** `application/json`
 
-> **Note:** The backend is hosted on Railway. Review Railway plan limits before public launch or pilot use.
+> **Note:** The backend is hosted on Cloudflare Workers. Review Cloudflare plan limits before public launch or pilot use.
 
 ---
 

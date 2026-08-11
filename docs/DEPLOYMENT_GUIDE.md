@@ -1,24 +1,21 @@
 # MDUMENI Deployment Guide
 
-This guide covers deploying MDUMENI to production: backend on Railway, database on Supabase, and mobile app on Google Play.
+This guide covers deploying MDUMENI to production: backend on Cloudflare Workers, database on Supabase, and mobile app on Google Play.
 
 ---
 
-## Backend Deployment (Railway)
+## Backend Deployment (Cloudflare Workers)
 
 ### Initial setup
 
-1. Create an account at [railway.com](https://railway.com)
-2. Connect your GitHub repository
-3. Create a new project from the `mdumeni` repository
-4. Configure:
-   - **Root directory:** `backend/mdumeni-backend`
-   - **Build command:** `pip install -r requirements.txt`
-   - **Start command:** `gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120`
+1. Create or select the Cloudflare Worker for this API.
+2. Configure its deployment using your Cloudflare dashboard or CI workflow.
+3. Add the environment variables below as Worker secrets or environment variables.
+4. Deploy the Worker to `mdumeni-backend.eugineeuman.workers.dev`.
 
-### Environment variables on Railway
+### Environment variables on Cloudflare Workers
 
-Set these in the Railway dashboard under Variables:
+Set these as Cloudflare Worker secrets or environment variables:
 
 ```
 SUPABASE_URL        = https://your-project-id.supabase.co
@@ -36,26 +33,26 @@ backend/mdumeni-backend/data/provinces/province_bulawayo.json
 ... (all 10 provinces)
 ```
 
-Ensure this directory is **not** in `.gitignore`. Railway deploys the repository contents, so the files must be committed.
+Ensure this directory is **not** in `.gitignore`. Your Cloudflare deployment must include these files.
 
 ### Verifying deployment
 
 After deploy, check:
-- `https://mdumeni-api-production.up.railway.app/health` -> `{"status": "healthy"}`
-- `https://mdumeni-api-production.up.railway.app/services/provinces` -> list of 10 provinces
-- `https://mdumeni-api-production.up.railway.app/docs` -> Swagger UI
+- `https://mdumeni-backend.eugineeuman.workers.dev/health` -> `{"status": "healthy"}`
+- `https://mdumeni-backend.eugineeuman.workers.dev/services/provinces` -> list of 10 provinces
+- `https://mdumeni-backend.eugineeuman.workers.dev/docs` -> Swagger UI
 
 ### Price scraper cron job
 
 Set up automated daily price updates:
-1. Railway dashboard -> your service -> **Cron**
+1. Cloudflare dashboard -> your Worker -> **Triggers**
 2. Add a scheduled job:
    - **Command:** `python price_scraper.py`
    - **Schedule:** `0 4 * * *` (4am UTC = 6am Zimbabwe time)
 
-### Hosting plan limits
+### Cloudflare Workers plan limits
 
-Review Railway usage and plan limits before any public launch or pilot.
+Review Cloudflare Workers usage and plan limits before any public launch or pilot.
 
 ---
 
@@ -285,9 +282,9 @@ All data is encrypted in transit. Users can request deletion.
 
 ## Monitoring and Alerts
 
-### Railway monitoring
+### Cloudflare Workers monitoring
 
-- Railway provides service logs and usage metrics in the dashboard
+- Cloudflare provides service logs and usage metrics in the dashboard
 - Set up email alerts for service restarts
 
 ### Supabase monitoring
@@ -304,20 +301,20 @@ npm install @sentry/react-native
 
 ---
 
-## Upgrading the Railway Service
+## Scaling the Cloudflare Workers service
 
 When ready for the pilot (recommended at 50+ active users):
 
-1. Railway dashboard -> your project -> service settings
+1. Cloudflare dashboard -> your Worker -> settings
 2. Review usage, resource limits, and plan options
 3. Upgrade before pilot traffic exceeds the current plan
 
 At 500+ active users, consider:
-- A higher Railway plan for more backend capacity
+- A higher Cloudflare plan for more Worker capacity
 - **Supabase Pro** ($25/month) for higher database limits and daily backups
 - PostgreSQL read replica if database traffic requires it
 
-Total cost for a production-grade setup depends on Railway and Supabase usage.
+Total cost for a production-grade setup depends on Cloudflare and Supabase usage.
 
 ---
 
@@ -330,7 +327,7 @@ Total cost for a production-grade setup depends on Railway and Supabase usage.
 - [ ] `marketplace.py` wired into `main.py`
 - [ ] Marketplace SQL tables created in Supabase
 - [ ] `marketplace-photos` storage bucket created
-- [ ] Price scraper cron job configured in Railway
+- [ ] Price scraper scheduled job configured in Cloudflare Workers
 - [ ] Backend health check passing
 - [ ] `/services/provinces` returning all 10 provinces
 - [ ] Privacy Policy hosted at a public URL

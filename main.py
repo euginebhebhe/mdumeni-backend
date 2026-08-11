@@ -15,8 +15,8 @@ All endpoints follow the same pattern:
   - Structured JSON response
   - Health check at /health
 
-Base URL:   https://mdumeni-api-production.up.railway.app
-Docs:       https://mdumeni-api-production.up.railway.app/docs  (Swagger UI - auto-generated)
+Base URL:   https://mdumeni-backend.eugineeuman.workers.dev
+Docs:       https://mdumeni-backend.eugineeuman.workers.dev/docs  (Swagger UI - auto-generated)
 
 Run:
     pip install fastapi uvicorn
@@ -660,7 +660,7 @@ def admin_stats():
 async def ai_chat(req: ChatRequest):
     """
     Farmer question to Groq Llama 3.3 70B with full farm context + live market prices.
-    Requires GROQ_API_KEY in Railway environment variables.
+    Requires GROQ_API_KEY in the Cloudflare Workers environment variables.
     Free tier: 500,000 tokens/day.
     """
     import httpx
@@ -933,6 +933,6 @@ if __name__ == "__main__":
     print("\nMDUMENI Intelligence Engine API v2.0.0")
     print(f"Crops loaded: {len(CROPS)}")
     print("Market intelligence: enabled")
-    print("Starting on https://mdumeni-api-production.up.railway.app")
-    print("Swagger docs: https://mdumeni-api-production.up.railway.app/docs\n")
+    print("Starting on https://mdumeni-backend.eugineeuman.workers.dev")
+    print("Swagger docs: https://mdumeni-backend.eugineeuman.workers.dev/docs\n")
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

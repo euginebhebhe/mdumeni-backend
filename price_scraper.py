@@ -6,7 +6,7 @@
 #   3. FAO FPMA Zimbabwe data (API)
 #   4. AI price inference via Groq (fills gaps with market-aware estimates)
 # Run daily via: python price_scraper.py
-# Or call POST /market/admin/scrape to trigger manually from Railway
+# Or call POST /market/admin/scrape to trigger manually from Cloudflare Workers
 
 import os
 from dotenv import load_dotenv
@@ -307,7 +307,7 @@ scraper_router = APIRouter(prefix="/market/admin", tags=["Price Scraper"])
 async def trigger_scrape(use_ai: bool = False):
     """
     Manually trigger the daily price scraper.
-    Called by Railway cron job daily at 6am Zimbabwe time.
+    Called by the Cloudflare Workers scheduled job daily at 6am Zimbabwe time.
     use_ai=true adds Groq-powered price estimates for export buyer prices.
     """
     result = await run_daily_update(use_ai=use_ai)

@@ -1,14 +1,14 @@
 # MDUMENI Backend API
-**AI agronomist for Zimbabwe - deployed on Railway**
+**AI agronomist for Zimbabwe - deployed on Cloudflare Workers**
 
 This is the backend server for the MDUMENI mobile app.  
 It runs all 4 AI engines and exposes them via a REST API.
 
-Live docs once deployed: `https://mdumeni-api-production.up.railway.app/docs`
+Live docs: `https://mdumeni-backend.eugineeuman.workers.dev/docs`
 
 ---
 
-## Deploy to Railway - step by step
+## Deploy to Cloudflare Workers
 
 ### Step 1 — Push this folder to GitHub
 
@@ -33,35 +33,29 @@ Paste and run them in your PowerShell. Your code is now on GitHub.
 
 ---
 
-### Step 2 - Create a Railway account
+### Step 2 - Configure Cloudflare Workers
 
-Go to **railway.com** and sign up with your GitHub account.
+Create or select the Worker that serves this API, then configure its deployment from your Cloudflare dashboard or CI workflow.
 
 ---
 
 ### Step 3 - Deploy the API
 
-1. In the Railway dashboard, click **New Project**
-2. Click **Connect a repository** → select `mdumeni-backend`
-3. Railway auto-detects Python with Nixpacks. Confirm these settings:
-   - **Name:** `mdumeni-api`
-   - **Branch:** `main`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120`
-4. Add the required environment variables in Railway
-5. Deploy the service
+1. Deploy the Worker using your configured Cloudflare workflow.
+2. Add the required environment variables as Worker secrets or environment variables.
+3. Deploy the service and confirm the Worker route is active.
 
-Railway builds and deploys from the connected GitHub repository.
+The production Worker is available at the URL below.
 
 ---
 
 ### Step 4 — Get your live URL
 
 Your API is live at:  
-`https://mdumeni-api-production.up.railway.app`
+`https://mdumeni-backend.eugineeuman.workers.dev`
 
 Test it by visiting:  
-`https://mdumeni-api-production.up.railway.app/health`
+`https://mdumeni-backend.eugineeuman.workers.dev/health`
 
 You should see:
 ```json
@@ -69,7 +63,7 @@ You should see:
 ```
 
 Full interactive docs:  
-`https://mdumeni-api-production.up.railway.app/docs`
+`https://mdumeni-backend.eugineeuman.workers.dev/docs`
 
 ---
 
@@ -79,7 +73,7 @@ Open `mdumeni-app/src/services/api.ts` on your computer.
 Find this line:
 
 ```typescript
-const BASE_URL = 'https://mdumeni-api-production.up.railway.app';
+const BASE_URL = 'https://mdumeni-backend.eugineeuman.workers.dev';
 ```
 
 Save the file. The app running in Expo Go will automatically reload and now call the real AI engines.
@@ -105,7 +99,7 @@ Save the file. The app running in Expo Go will automatically reload and now call
 
 ## Important note about the free tier
 
-Railway hosts this API at the production URL above. Review your Railway plan limits before a public launch or pilot.
+Cloudflare Workers hosts this API at the production URL above. Review your Cloudflare plan limits before a public launch or pilot.
 
 For the demo and pilot this is fine.  
 When you get institutional customers, upgrade to the $7/month paid tier for always-on performance.
@@ -114,6 +108,4 @@ When you get institutional customers, upgrade to the $7/month paid tier for alwa
 
 ## Auto-deploy on every push
 
-Once connected to Railway, every time you run `git push` from your computer,  
-Railway automatically rebuilds and redeploys.  
-No manual steps needed.
+Deploy updates through your configured Cloudflare Workers workflow after pushing changes.

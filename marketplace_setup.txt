@@ -16,10 +16,10 @@
 #    - Public: true
 #    - File size limit: 5 MB
 #
-# 5. Optional: add SMS_API_KEY env var in Railway dashboard
+# 5. Optional: add SMS_API_KEY in Cloudflare Workers environment variables
 #    when you integrate Econet/Netone bulk SMS
 #
-# 6. Deploy to Railway - push to GitHub and it auto-deploys
+# 6. Deploy to Cloudflare Workers
 #
 # ── ENDPOINTS AFTER DEPLOYMENT ──────────────────────────────
 #
@@ -37,10 +37,10 @@
 #
 # ── TEST ENDPOINTS ──────────────────────────────────────────
 #
-# Test in Swagger at: https://mdumeni-api-production.up.railway.app/docs
+# Test in Swagger at: https://mdumeni-backend.eugineeuman.workers.dev/docs
 #
 # Quick test create listing:
-# curl -X POST https://mdumeni-api-production.up.railway.app/marketplace/listing \
+# curl -X POST https://mdumeni-backend.eugineeuman.workers.dev/marketplace/listing \
 #   -H "Content-Type: application/json" \
 #   -d '{
 #     "type": "selling",
@@ -56,4 +56,4 @@
 #   }'
 #
 # Quick test browse:
-# curl "https://mdumeni-api-production.up.railway.app/marketplace/listings?type=selling&province=Mashonaland+East"
+# curl "https://mdumeni-backend.eugineeuman.workers.dev/marketplace/listings?type=selling&province=Mashonaland+East"
