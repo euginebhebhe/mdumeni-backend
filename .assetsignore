@@ -1,0 +1,26 @@
+# Cloudflare Workers limits each uploaded static asset to 25 MiB.
+# APK release binaries are distributed separately (for example, via GitHub Releases or R2).
+apk/
+
+# Source, local configuration, and development files are not public assets.
+.git/
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.py
+.gitignore
+.assetsignore
+.env.example
+requirements.txt
+runtime.txt
+README.md
+railway.json
+docs/
+calendar_engine/
+crop_engine/
+pest_engine/
+planning_engine/
+routers/
+.env
+.env.*
