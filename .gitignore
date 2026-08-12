@@ -13,5 +13,13 @@ build/
 .DS_Store
 Thumbs.db
 
+# Node.js / npm
+node_modules/
+package-lock.json
+.wrangler/
+dist/
+*.tgz
+npm-debug.log*
+
 # Android build artifacts are published outside the repository.
 apk/
