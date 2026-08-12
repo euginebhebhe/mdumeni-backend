@@ -12,3 +12,6 @@ dist/
 build/
 .DS_Store
 Thumbs.db
+
+# Android build artifacts are published outside the repository.
+apk/
