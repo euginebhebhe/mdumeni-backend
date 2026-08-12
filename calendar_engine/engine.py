@@ -8,47 +8,23 @@ Given:
   - The crop (from crop_dataset)
   - The planting date
   - Live sensor readings (updated daily)
-  - Farmer profile
+  - Farmer profile (including agro_region for Pfumvudza awareness)
 
 The engine returns:
   - Current phase and progress
-  - Today's exact tasks
+  - Today's exact tasks (region-aware for land preparation)
   - Upcoming tasks for the next 7 days
   - Any sensor-triggered alerts (critical or warning)
   - Days to next phase, days to harvest
 
 Architecture:
   Each crop has a CALENDAR with 6 phases:
-    Phase 1 — Land Preparation
+    Phase 1 — Land Preparation  (REGION-AWARE: Pfumvudza for Regions 4 & 5)
     Phase 2 — Planting & Germination
     Phase 3 — Vegetative Growth
     Phase 4 — Flowering / Pollination / Heading
     Phase 5 — Grain Fill / Fruit Development / Maturation
     Phase 6 — Harvest & Post-Harvest
-
-  Each phase contains:
-    - tasks:         time-based instructions (triggered by day number)
-    - sensor_rules:  condition-based alerts (triggered by live readings)
-
-  The engine evaluates:
-    - Which phase is active today
-    - Which tasks are due (exact day, or overdue within 3 days)
-    - Which sensor rules are firing
-    - What's coming up in the next 7 days
-
-Usage:
-    from calendar_engine.engine import get_daily_guidance, CalendarInput
-
-    guidance = get_daily_guidance(CalendarInput(
-        crop_id="CROP_001",
-        days_since_planting=35,
-        soil_ph=5.1,
-        soil_moisture_pct=43,
-        soil_temp_c=29,
-        has_irrigation=False,
-        budget_level="low",
-        planting_month=11
-    ))
 """
 
 from dataclasses import dataclass, field
@@ -72,6 +48,7 @@ class CalendarInput:
 
     # Optional
     farm_size_ha:       Optional[float] = None
+    agro_region:        Optional[int]   = None  # 1–5; drives Pfumvudza vs conventional
 
     def validate(self):
         if self.days_since_planting < 0:
@@ -176,36 +153,182 @@ class DailyGuidance:
         }
 
 
+# ── PFUMVUDZA / CONSERVATION AGRICULTURE ─────────────────────────────────────
+#
+# Zimbabwe's agro-ecological regions require fundamentally different land
+# preparation methods:
+#
+# Regions 1, 2, 3 — adequate to high rainfall (>650 mm):
+#   Conventional ploughing to 20-25 cm, discing, row marking. Sufficient
+#   rainfall means soil moisture retention is less critical.
+#
+# Regions 4, 5 — semi-arid to arid (<650 mm):
+#   Pfumvudza (Conservation Agriculture Basin System).
+#   DO NOT plough — ploughing destroys soil structure and increases
+#   evaporation in low-rainfall areas.
+#   Instead: dig individual basins (15cm × 15cm × 15cm) on a 90cm × 60cm
+#   grid. Basins concentrate both water and nutrients exactly at the root
+#   zone, reducing evaporation by up to 30% vs conventional tillage.
+#   Results from CIMMYT/AGRITEX trials: 60-120% yield increase vs
+#   conventional tillage in Region 4-5 conditions.
+#
+# Reference: AGRITEX Pfumvudza Programme; CIMMYT Conservation Agriculture
+
+# Crops where Pfumvudza applies — cereals and legumes planted in rows.
+# Perennials, vegetables, and tree crops use their own land prep regardless.
+_PFUMVUDZA_ELIGIBLE = {
+    "CROP_001",  # Maize
+    "CROP_002",  # Sorghum
+    "CROP_004",  # Pearl millet
+    "CROP_006",  # Soybeans
+    "CROP_007",  # Groundnuts
+    "CROP_008",  # Sugar beans
+    "CROP_009",  # Cowpeas
+    "CROP_031",  # Finger millet (Zviyo)
+    "CROP_032",  # Bambara groundnut (Nyimo)
+    "CROP_033",  # Pigeon peas
+    "CROP_034",  # Lablab
+    "CROP_054",  # Castor bean
+    "CROP_055",  # Safflower
+}
+
+# Pfumvudza task schedule — replaces conventional land prep for Region 4 & 5
+_PFUMVUDZA_TASKS = [
+    {
+        "day": 0,
+        "type": "instruction",
+        "applies_to": ["low", "medium", "high"],
+        "message": (
+            "PFUMVUDZA — DO NOT PLOUGH. Your agro-ecological region (4 or 5) "
+            "receives too little rainfall for conventional tillage to work. Ploughing "
+            "destroys soil structure and increases evaporation. "
+            "Today: mark out rows every 90 cm across the entire field. Use a rope "
+            "or stick to keep rows straight. This is the baseline for your basin grid."
+        ),
+    },
+    {
+        "day": 1,
+        "type": "instruction",
+        "applies_to": ["low", "medium", "high"],
+        "message": (
+            "Dig basins along each row. Spacing: one basin every 60 cm within each row. "
+            "Each basin: 15 cm long × 15 cm wide × 15 cm deep. "
+            "Heap the dug soil on the DOWNHILL side of the basin — this acts as a berm "
+            "and traps additional runoff. "
+            "For 1 hectare you need approximately 18,500 basins. Work systematically. "
+            "Basins must be level — not tilted, or water will run out."
+        ),
+    },
+    {
+        "day": 2,
+        "type": "instruction",
+        "applies_to": ["low", "medium", "high"],
+        "message": (
+            "Continue digging basins. Check yesterday's basins: press your hand flat "
+            "into each basin floor — it should be level and firm, not loose. "
+            "Do not disturb the soil BETWEEN basins. Leave it firm and undisturbed — "
+            "this reduces evaporation significantly. If you have last season's crop "
+            "residue, spread it between basins as mulch."
+        ),
+    },
+    {
+        "day": 3,
+        "type": "fertiliser",
+        "applies_to": ["low", "medium", "high"],
+        "message": (
+            "Add basal inputs to each completed basin. "
+            "LOW INPUT: 1 small tin (250 ml) of well-rotted manure or compost per basin — "
+            "mix into the bottom 5 cm. "
+            "MEDIUM/HIGH INPUT: add 1 bottle-cap (approx. 15 g) of Compound D per basin "
+            "IN ADDITION to manure. "
+            "Do not use full ha-rate fertiliser in basins — concentrating nutrients at "
+            "root level is more efficient than broadcasting."
+        ),
+    },
+    {
+        "day": 5,
+        "type": "instruction",
+        "applies_to": ["low", "medium", "high"],
+        "message": (
+            "Basins are now ready. Final check: walk the field and confirm all basins "
+            "are level, correctly spaced (90 cm × 60 cm), and have been amended with "
+            "manure or fertiliser. "
+            "Do NOT plant yet. Wait for the first meaningful rain of 20 mm or more. "
+            "Planting into dry basins wastes seed — Pfumvudza works by combining "
+            "the basin water-harvesting effect with timely planting."
+        ),
+    },
+    {
+        "day": 7,
+        "type": "instruction",
+        "applies_to": ["low", "medium", "high"],
+        "message": (
+            "PLANTING — when first rains of 20 mm or more arrive, plant immediately. "
+            "Place 2–3 seeds per basin at 3–5 cm depth. Cover and firm gently. "
+            "After germination (7–10 days), thin to 2 plants per basin — this is the "
+            "Pfumvudza standard. Do not thin to 1 plant; 2 per basin consistently "
+            "outperforms 1 per basin in low-rainfall trials across Zimbabwe. "
+            "First top-dressing: apply when plants are knee-high (approx. 4–6 weeks)."
+        ),
+    },
+]
+
+
+def _should_use_pfumvudza(crop_id: str, agro_region: Optional[int]) -> bool:
+    """True if this farmer's region and crop require Pfumvudza basins."""
+    return agro_region in (4, 5) and crop_id in _PFUMVUDZA_ELIGIBLE
+
+
+def _pfumvudza_tasks(day: int, budget_level: str) -> tuple:
+    """
+    Return (tasks_today, tasks_upcoming) from the Pfumvudza schedule.
+    Mirrors the logic of _collect_tasks() so behaviour is identical.
+    """
+    today_tasks    = []
+    upcoming_tasks = []
+
+    for t in _PFUMVUDZA_TASKS:
+        if budget_level not in t.get("applies_to", ["low", "medium", "high"]):
+            continue
+        task_day = t["day"]
+        if task_day == day:
+            today_tasks.append(Task(day=task_day, type=t["type"],
+                                    message=t["message"], overdue=False))
+        elif day - 3 <= task_day < day:
+            today_tasks.append(Task(
+                day=task_day, type=t["type"],
+                message=f"[OVERDUE from Day {task_day}] {t['message']}",
+                overdue=True,
+            ))
+        elif day < task_day <= day + 7:
+            upcoming_tasks.append(Task(day=task_day, type=t["type"],
+                                       message=t["message"], overdue=False))
+
+    return today_tasks, upcoming_tasks
+
+
 # ── SENSOR RULE EVALUATOR ─────────────────────────────────────────────────────
 
 def _evaluate_sensor_rules(rules: list, inp: CalendarInput) -> list:
-    """
-    Evaluate all sensor rules for the current phase.
-    Returns a list of Alert objects for any triggered rules.
-    """
     sensor_map = {
         "soil_moisture_pct": inp.soil_moisture_pct,
         "soil_ph":           inp.soil_ph,
         "soil_temp_c":       inp.soil_temp_c,
     }
-
     alerts = []
     for rule in rules:
         field   = rule["field"]
         op      = rule["operator"]
         thresh  = rule["threshold"]
         value   = sensor_map.get(field)
-
         if value is None:
             continue
-
         triggered = (
             (op == "<"  and value < thresh) or
             (op == ">"  and value > thresh) or
             (op == "<=" and value <= thresh) or
             (op == ">=" and value >= thresh)
         )
-
         if triggered:
             alerts.append(Alert(
                 severity  = rule["severity"],
@@ -214,8 +337,6 @@ def _evaluate_sensor_rules(rules: list, inp: CalendarInput) -> list:
                 value     = round(value, 1),
                 threshold = thresh,
             ))
-
-    # Sort: critical first, then warning, then info
     severity_order = {"critical": 0, "warning": 1, "info": 2}
     alerts.sort(key=lambda a: severity_order.get(a.severity, 3))
     return alerts
@@ -224,29 +345,19 @@ def _evaluate_sensor_rules(rules: list, inp: CalendarInput) -> list:
 # ── TASK COLLECTOR ────────────────────────────────────────────────────────────
 
 def _collect_tasks(phase: dict, day: int, budget_level: str) -> tuple:
-    """
-    Returns (tasks_today, tasks_upcoming) for the given day.
-    - tasks_today:    tasks due exactly today, or overdue within 3 days
-    - tasks_upcoming: tasks due in the next 7 days (exclusive of today)
-    """
     today_tasks    = []
     upcoming_tasks = []
-
     for task in phase.get("tasks", []):
-        task_day = task["day"]
-
-        # Budget filter — skip tasks that don't apply to this budget level
+        task_day   = task["day"]
         applies_to = task.get("applies_to", ["low", "medium", "high"])
         if budget_level not in applies_to:
             continue
-
         if task_day == day:
             today_tasks.append(Task(
                 day=task_day, type=task["type"],
                 message=task["message"], overdue=False
             ))
         elif day - 3 <= task_day < day:
-            # Overdue — missed in the last 3 days
             today_tasks.append(Task(
                 day=task_day, type=task["type"],
                 message=f"[OVERDUE from Day {task_day}] {task['message']}",
@@ -257,22 +368,12 @@ def _collect_tasks(phase: dict, day: int, budget_level: str) -> tuple:
                 day=task_day, type=task["type"],
                 message=task["message"], overdue=False
             ))
-
     return today_tasks, upcoming_tasks
 
 
 # ── MAIN ENGINE FUNCTION ──────────────────────────────────────────────────────
 
 def get_daily_guidance(inp: CalendarInput) -> DailyGuidance:
-    """
-    Generate complete daily guidance for a farmer on a specific crop.
-
-    Args:
-        inp: CalendarInput — validated sensor + farmer data
-
-    Returns:
-        DailyGuidance — full structured guidance for display in the app
-    """
     inp.validate()
 
     calendar = CALENDARS.get(inp.crop_id)
@@ -286,9 +387,7 @@ def get_daily_guidance(inp: CalendarInput) -> DailyGuidance:
     crop_name  = calendar["crop_name"]
     phases     = calendar["phases"]
 
-    # Season complete check
     if inp.days_since_planting > total_days:
-        # Return a completed season summary
         last_phase = phases[-1]
         return DailyGuidance(
             crop_id=inp.crop_id, crop_name=crop_name,
@@ -310,37 +409,40 @@ def get_daily_guidance(inp: CalendarInput) -> DailyGuidance:
         if phase["start_day"] <= inp.days_since_planting <= phase["end_day"]:
             current_phase_data = phase
             break
-
-    # If between phases, use the last completed one
     if not current_phase_data:
         for phase in reversed(phases):
             if inp.days_since_planting >= phase["start_day"]:
                 current_phase_data = phase
                 break
-
     if not current_phase_data:
         current_phase_data = phases[0]
 
-    # Find next phase
-    current_idx = phases.index(current_phase_data)
+    current_idx     = phases.index(current_phase_data)
     next_phase_data = phases[current_idx + 1] if current_idx + 1 < len(phases) else None
 
-    # Tasks and alerts
-    tasks_today, tasks_upcoming = _collect_tasks(
-        current_phase_data, inp.days_since_planting, inp.budget_level
-    )
+    # ── Tasks — Pfumvudza override for Region 4 & 5, Phase 1 only ────────────
+    if (
+        current_phase_data.get("phase_number") == 1
+        and _should_use_pfumvudza(inp.crop_id, inp.agro_region)
+    ):
+        tasks_today, tasks_upcoming = _pfumvudza_tasks(
+            inp.days_since_planting, inp.budget_level
+        )
+    else:
+        tasks_today, tasks_upcoming = _collect_tasks(
+            current_phase_data, inp.days_since_planting, inp.budget_level
+        )
+
     alerts = _evaluate_sensor_rules(
         current_phase_data.get("sensor_rules", []), inp
     )
 
-    # Also check upcoming phase rules if within 5 days of transition
     if next_phase_data:
         days_to_next = next_phase_data["start_day"] - inp.days_since_planting
         if days_to_next <= 5:
             next_alerts = _evaluate_sensor_rules(
                 next_phase_data.get("sensor_rules", []), inp
             )
-            # Mark as early warnings
             for a in next_alerts:
                 a.message = f"[UPCOMING PHASE] {a.message}"
                 if a.severity == "critical":
@@ -349,7 +451,6 @@ def get_daily_guidance(inp: CalendarInput) -> DailyGuidance:
     else:
         days_to_next = None
 
-    # Harvest ready check (last phase, last 20% of days)
     harvest_ready = (
         current_idx == len(phases) - 1 and
         inp.days_since_planting >= current_phase_data["start_day"] + (
