@@ -21,7 +21,7 @@
   "author": "MDUMENI Team",
   "license": "MIT",
   "devDependencies": {
-    "wrangler": "^3.80.0"
+    "wrangler": "^4.0.0"
   },
   "dependencies": {
     "node-fetch": "^3.3.0"

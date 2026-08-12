@@ -3,22 +3,18 @@ main = "worker.js"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
-# ── Cloudflare Worker Configuration ────────────────────────────────────────
+# ── Production Environment ──────────────────────────────────────────────────
 [env.production]
 name = "mdumeni-backend"
 route = "mdumeni-backend.eugineeuman.workers.dev/*"
 zone_id = ""  # Set your Cloudflare zone ID here
+vars = { ENVIRONMENT = "production", API_TIMEOUT = "30000" }
 
+# ── Staging Environment ─────────────────────────────────────────────────────
 [env.staging]
 name = "mdumeni-backend-staging"
 route = "mdumeni-backend-staging.eugineeuman.workers.dev/*"
 zone_id = ""
-
-# ── Environment Variables ──────────────────────────────────────────────────
-[env.production]
-vars = { ENVIRONMENT = "production", API_TIMEOUT = "30000" }
-
-[env.staging]
 vars = { ENVIRONMENT = "staging", API_TIMEOUT = "30000" }
 
 # ── Outbound requests to FastAPI backend ───────────────────────────────────
