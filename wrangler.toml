@@ -1,0 +1,33 @@
+name = "mdumeni-backend"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ── Cloudflare Worker Configuration ────────────────────────────────────────
+[env.production]
+name = "mdumeni-backend"
+route = "mdumeni-backend.eugineeuman.workers.dev/*"
+zone_id = ""  # Set your Cloudflare zone ID here
+
+[env.staging]
+name = "mdumeni-backend-staging"
+route = "mdumeni-backend-staging.eugineeuman.workers.dev/*"
+zone_id = ""
+
+# ── Environment Variables ──────────────────────────────────────────────────
+[env.production]
+vars = { ENVIRONMENT = "production", API_TIMEOUT = "30000" }
+
+[env.staging]
+vars = { ENVIRONMENT = "staging", API_TIMEOUT = "30000" }
+
+# ── Outbound requests to FastAPI backend ───────────────────────────────────
+# The worker will proxy requests to your Python backend
+# Make sure to set the BACKEND_URL in .env or as a secret in Cloudflare
+
+[build]
+command = "npm install"
+cwd = "."
+
+[build.upload]
+format = "service-worker"

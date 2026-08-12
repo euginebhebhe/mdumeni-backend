@@ -1,0 +1,29 @@
+{
+  "name": "mdumeni-backend",
+  "version": "2.0.0",
+  "description": "MDUMENI Intelligence Engine - Cloudflare Workers + FastAPI Backend",
+  "main": "worker.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev worker.js",
+    "deploy": "wrangler deploy --env production",
+    "deploy:staging": "wrangler deploy --env staging",
+    "build": "npm install",
+    "test": "node --test"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "fastapi",
+    "agriculture",
+    "ai",
+    "mdumeni"
+  ],
+  "author": "MDUMENI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.80.0"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
