@@ -6,7 +6,7 @@
  */
 
 // Default backend URL (override in wrangler.toml with env.BACKEND_URL)
-const DEFAULT_BACKEND_URL = 'http://localhost:8000';
+const DEFAULT_BACKEND_URL = 'https://mdumeni-backend.eugineeuman.workers.dev';
 
 /**
  * Main request handler
